@@ -64,12 +64,9 @@ export default function ProductCard({
 
   return (
     <div className="group relative bg-[#16181D] border border-[#282C34] hover:border-[#F5F5F7] rounded-none overflow-hidden transition-[border-color,background-color] duration-200 ease-out flex flex-col font-mono text-white">
-      <Link
-        href={`/product/${product.slug}`}
-        className="relative bg-[#0B0C10] p-4 sm:p-5 flex items-center justify-center cursor-pointer overflow-hidden aspect-[4/5] border-b border-[#282C34] block"
-      >
+      <div className="relative bg-[#0B0C10] p-4 sm:p-5 flex items-center justify-center overflow-hidden aspect-[4/5] border-b border-[#282C34]">
         {/* Stitch Telemetry / Merchandising badges */}
-        <div className="absolute top-3 left-3 z-10 flex flex-col items-start gap-1">
+        <div className="absolute top-3 left-3 z-10 flex flex-col items-start gap-1 pointer-events-none">
           <span className="px-2 py-0.5 rounded-none text-[9px] font-mono font-bold tracking-widest uppercase bg-[#16181D] text-[#00F0FF] border border-[#00F0FF]/40">
             [240 GSM]
           </span>
@@ -91,6 +88,7 @@ export default function ProductCard({
         </div>
 
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             onToggleWishlist?.(product.id);
@@ -112,19 +110,26 @@ export default function ProductCard({
           <Heart className={`w-4 h-4 transition-transform duration-150 ${isWishlisted ? "fill-rose-500 text-rose-500" : ""}`} />
         </button>
 
-        <ProductMedia
-          product={product}
-          colorHex={selectedColor.hex}
-          view={activeView}
-          eager={false}
-          className="w-full max-w-[260px] h-full transform group-hover:scale-[1.02] transition-transform duration-300"
-        />
+        <Link
+          href={`/product/${product.slug}`}
+          className="w-full h-full flex items-center justify-center cursor-pointer"
+          aria-label={product.title}
+        >
+          <ProductMedia
+            product={product}
+            colorHex={selectedColor.hex}
+            view={activeView}
+            eager={false}
+            className="w-full max-w-[260px] h-full transform group-hover:scale-[1.02] transition-transform duration-300"
+          />
+        </Link>
 
         {views.length > 1 && (
-          <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-[#0B0C10]/90 backdrop-blur-md p-1 rounded-none border border-[#282C34] shadow-lg">
+          <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-[#0B0C10]/90 backdrop-blur-md p-1 rounded-none border border-[#282C34] shadow-lg z-10">
             {views.map((v) => (
               <button
                 key={v.key}
+                type="button"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -139,7 +144,7 @@ export default function ProductCard({
             ))}
           </div>
         )}
-      </Link>
+      </div>
 
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between bg-[#16181D]">
         <div>

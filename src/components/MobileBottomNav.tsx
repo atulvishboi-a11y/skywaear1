@@ -35,10 +35,14 @@ export default function MobileBottomNav() {
   const hasMountedRef = useRef(false);
   const lensRef = useRef<HTMLDivElement | null>(null);
   const tabsRef = useRef<(HTMLAnchorElement | null)[]>([]);
-  const lensInstanceRef = useRef<any>(null);
 
-  // The admin console is a separate surface; customer navigation must not bleed into it.
-  const showNav = loggedIn && !pathname.startsWith("/admin");
+  // Dedicated product and checkout pages have their own primary action bars and must never be obstructed.
+  const isExcludedPage =
+    pathname.startsWith("/product") ||
+    pathname.startsWith("/checkout") ||
+    pathname.startsWith("/cart") ||
+    pathname.startsWith("/app/bag");
+  const showNav = loggedIn && !pathname.startsWith("/admin") && !isExcludedPage;
 
   useEffect(() => {
     if (!showNav) return;
@@ -132,7 +136,7 @@ export default function MobileBottomNav() {
     }
   }, [pathname, optimisticIndex]);
 
-  // Clean elastic transition between footer icons
+  // Clean smooth transition between footer icons
   useEffect(() => {
     if (!showNav || typeof window === "undefined") return;
 
@@ -155,24 +159,15 @@ export default function MobileBottomNav() {
       });
       hasMountedRef.current = true;
     } else {
-      // Fluid elastic spring motion between the two bottom footer icons
       gsap.to(lens, {
         left: targetLeft,
         width: targetWidth,
         x: 0,
         y: 0,
         scale: 1,
-        duration: 0.65,
-        ease: "elastic.out(1, 0.75)",
+        duration: 0.35,
+        ease: "power2.out",
         overwrite: true,
-        onUpdate: () => {
-          if (
-            lensInstanceRef.current &&
-            typeof lensInstanceRef.current.updateMetrics === "function"
-          ) {
-            lensInstanceRef.current.updateMetrics();
-          }
-        },
       });
     }
   }, [activeIndex, showNav]);
@@ -189,122 +184,11 @@ export default function MobileBottomNav() {
           left: target.left,
           width: target.width,
         });
-        if (
-          lensInstanceRef.current &&
-          typeof lensInstanceRef.current.updateMetrics === "function"
-        ) {
-          lensInstanceRef.current.updateMetrics();
-        }
       }
     };
     window.addEventListener("resize", handleResize, { passive: true });
     return () => window.removeEventListener("resize", handleResize);
   }, [activeIndex, showNav]);
-
-  // Initialize LiquidGL on #lens with the exact configuration
-  useEffect(() => {
-    if (!showNav || typeof window === "undefined") return;
-
-    let cancelled = false;
-    let scrollTimer: any = null;
-
-    const handleScroll = () => {
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => {
-        const renderer = (window as any).__liquidGLRenderer__;
-        if (renderer && typeof renderer.captureSnapshot === "function") {
-          renderer.captureSnapshot();
-        }
-      }, 200);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    const timer = setTimeout(() => {
-      import("liquid-gl")
-        .then((mod) => {
-          if (cancelled) return;
-          const init = mod.default || (window as any).liquidGL;
-          if (typeof init !== "function") return;
-
-          // Position initial lens before LiquidGL registers bounding box
-          const targetEl = document.querySelector("#lens") as HTMLElement | null;
-          if (!targetEl) return;
-          const target = measureTab(tabsRef.current[activeIndex], targetEl);
-          if (target) {
-            gsap.set(targetEl, {
-              left: target.left,
-              width: target.width,
-            });
-          }
-
-          const instance = init({
-            target: "#lens",
-            snapshot: "body",
-            resolution: 3,
-            refraction: 0.016,
-            aberration: 1,
-            bevelDepth: 0.014,
-            bevelWidth: 0.071,
-            frost: 0,
-            shadow: true,
-            specular: true,
-            reveal: "none",
-            tilt: false,
-            tiltFactor: 5,
-            tiltEase: 400,
-            draggable: false,
-            interaction: "fluid",
-            interactionStrength: 0.5,
-            interactionRadius: 3,
-            interactionViscosity: 0.25,
-            magnify: 1.05,
-            tint: "rgba(234, 234, 236, 0.24)",
-            helper: false,
-          });
-
-          lensInstanceRef.current = instance;
-
-          const anyInit = init as any;
-          if (typeof anyInit.syncWith === "function") {
-            try {
-              anyInit.syncWith({ gsap });
-            } catch {}
-          }
-        })
-        .catch((err) => {
-          console.warn("LiquidGL fallback:", err);
-        });
-    }, 100);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-      clearTimeout(scrollTimer);
-      window.removeEventListener("scroll", handleScroll);
-      if (
-        lensInstanceRef.current &&
-        typeof lensInstanceRef.current.destroy === "function"
-      ) {
-        try {
-          lensInstanceRef.current.destroy();
-        } catch {}
-        lensInstanceRef.current = null;
-      }
-    };
-  }, [showNav]);
-
-  // Recapture snapshot when activeIndex or pathname updates so refraction stays synchronized
-  useEffect(() => {
-    if (!showNav || typeof window === "undefined") return;
-    const snapTimer = setTimeout(() => {
-      const renderer = (window as any).__liquidGLRenderer__;
-      if (renderer && typeof renderer.captureSnapshot === "function") {
-        renderer.captureSnapshot();
-      }
-    }, 200);
-    return () => clearTimeout(snapTimer);
-  }, [pathname, activeIndex, showNav]);
 
   if (!showNav) return null;
 

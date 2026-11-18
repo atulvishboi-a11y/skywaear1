@@ -52,12 +52,13 @@ export function getPool(): Pool {
   if (!globalThis.__pgPool) {
     const url = getDatabaseUrl();
     const isCloudDb = url.includes("neon.tech") || url.includes("sslmode=require") || url.includes("supabase.co");
+    // In serverless (Vercel), keep pool small (2 connections) to prevent Neon connection exhaustion
     globalThis.__pgPool = new Pool({
       connectionString: url,
       ssl: isCloudDb ? { rejectUnauthorized: false } : undefined,
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
+      max: process.env.VERCEL ? 2 : 10,
+      idleTimeoutMillis: 15000,
+      connectionTimeoutMillis: 2500,
     });
 
     globalThis.__pgPool.on("error", (err) => {
@@ -72,16 +73,16 @@ let unpooledPool: Pool | undefined;
 function getUnpooledPool(): Pool | undefined {
   let unpooledUrl = process.env.DATABASE_URL_UNPOOLED;
   if (!unpooledUrl) {
-    unpooledUrl = readEnvVarFromFile("DATABASE_URL_UNPOOLED") || readEnvVarFromFile("STUDIO_DATABASE_URL") || getDatabaseUrl();
+    unpooledUrl = readEnvVarFromFile("DATABASE_URL_UNPOOLED") || readEnvVarFromFile("STUDIO_DATABASE_URL");
   }
   if (!unpooledPool && unpooledUrl) {
     const isCloudDb = unpooledUrl.includes("neon.tech") || unpooledUrl.includes("sslmode=require") || unpooledUrl.includes("supabase.co");
     unpooledPool = new Pool({
       connectionString: unpooledUrl,
       ssl: isCloudDb ? { rejectUnauthorized: false } : undefined,
-      max: 5,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
+      max: 2,
+      idleTimeoutMillis: 15000,
+      connectionTimeoutMillis: 2500,
     });
   }
   return unpooledPool;
@@ -96,8 +97,13 @@ export async function query<T = any>(sql: string, params?: any[]): Promise<T[]> 
     const backup = getUnpooledPool();
     if (backup && (err.code === "ENOTFOUND" || err.message?.includes("ENOTFOUND") || err.code === "ETIMEDOUT")) {
       console.warn("[PostgreSQL] Pooler connection notice, retrying with unpooled direct database:", err.message);
-      const res = await backup.query(sql, params);
-      return res.rows as T[];
+      try {
+        const res = await backup.query(sql, params);
+        return res.rows as T[];
+      } catch (backupErr: any) {
+        console.warn("[PostgreSQL] Unpooled direct database also failed:", backupErr.message);
+        throw backupErr;
+      }
     }
     throw err;
   }

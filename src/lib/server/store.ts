@@ -515,10 +515,9 @@ function applyTimeRules(state: ZeninState): void {
 }
 
 let lastPgSyncTime = 0;
-// In production on serverless, 2s in-memory TTL keeps tab switching fast while
-// checking shared Redis / Postgres almost immediately across Lambda instances.
-// Mutations bypass this cache immediately with forceRefresh=true.
-const PG_CACHE_TTL_MS = process.env.NODE_ENV === "development" ? 60 * 60 * 1000 : 2 * 1000;
+// In production on serverless, 60s in-memory TTL keeps tab switching and page browsing instant
+// without overloading Postgres connection pools. Mutations bypass this cache immediately with forceRefresh=true.
+const PG_CACHE_TTL_MS = process.env.NODE_ENV === "development" ? 60 * 60 * 1000 : 60 * 1000;
 
 export async function ensureStateLoaded(forceRefresh = false): Promise<ZeninState> {  const now = Date.now();
   // Return instant in-memory cached state if within TTL or already in memory in local development

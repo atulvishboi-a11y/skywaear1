@@ -43,27 +43,17 @@ export default function SingleProductPage() {
 
   React.useEffect(() => {
     let mounted = true;
-    const fetchLatest = () => {
-      api.storefront()
-        .then((data) => {
-          if (mounted && data.products) {
-            setLiveProducts(data.products);
-            setCatalogLoaded(true);
-          }
-        })
-        .catch((err) => console.error("Storefront product fetch failed:", err));
-    };
-
-    fetchLatest();
-
-    const onFocus = () => fetchLatest();
-    window.addEventListener("focus", onFocus);
-    const interval = setInterval(fetchLatest, 8000);
+    api.storefront()
+      .then((data) => {
+        if (mounted && data.products) {
+          setLiveProducts(data.products);
+          setCatalogLoaded(true);
+        }
+      })
+      .catch((err) => console.error("Storefront product fetch failed:", err));
 
     return () => {
       mounted = false;
-      window.removeEventListener("focus", onFocus);
-      clearInterval(interval);
     };
   }, []);
 
