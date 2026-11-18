@@ -1,0 +1,284 @@
+{
+  "version": 2,
+  "rewardRules": {
+    "dailyClaimPercent": 3,
+    "minWithdrawalCoins": 500,
+    "referralCommissionPercent": 10
+  },
+  "products": [
+    {
+      "id": "zenin-choso-oversized-tee",
+      "gsm": 280,
+      "mrp": 5699,
+      "sku": "ZN-280-CHOSO-01",
+      "slug": "choso-jujutsu-kaisen-oversized-t-shirt",
+      "badge": "⚡ Bestseller",
+      "price": 3299,
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "stock": 65,
+      "theme": "Jujutsu Kaisen · Death Painting",
+      "title": "CHOSO / JUJUTSU KAISEN OVERSIZED T-SHIRT",
+      "colors": [
+        {
+          "hex": "#0b0c10",
+          "name": "Onyx Black",
+          "previewClass": "bg-[#0b0c10]"
+        }
+      ],
+      "fabric": "280 GSM Super-Combed French Terry Cotton",
+      "rating": 4.9,
+      "category": "T-Shirts",
+      "imageUrl": "/mockups/chos0_front/1.png",
+      "subtitle": "280 GSM Pure French Terry Cotton • Jujutsu Kaisen",
+      "artworkUrl": "/products/choso-back.webp",
+      "isArchived": false,
+      "accentColor": "#ec4899",
+      "description": "CHOSO // JUJUTSU KAISEN OVERSIZED T-SHIRT\n\nFront Graphic: CHOSO // A PINTURA DA MORTE bold typography.\nBack Graphic: Full back Death Painting Womb No. 1 Choso manga art in vivid blood-red and monochrome screenprint.\n\nQuality:\n- 100% Pure French Terry Cotton\n- 280 GSM Heavy density fabric\n- Double Bio-Washed & Silicon-Washed\n- Drop-shoulder Boxy Streetwear Silhouette, UNISEX\n\nPart of the Skywear Archive Collection.",
+      "productType": "tshirt",
+      "rewardCoins": 2000,
+      "showInAnime": true,
+      "codAvailable": true,
+      "graphicTitle": "Tokyo Neon Kanji",
+      "imageBackUrl": "/products/choso-back.webp",
+      "imageGallery": [
+        "/products/choso-detail-1.webp",
+        "/products/choso-detail-2.webp"
+      ],
+      "reviewsCount": 68,
+      "imageHoverUrl": "/products/choso-back.webp",
+      "showInPremium": true,
+      "cashbackPoints": 2000,
+      "graphicSvgType": "cyber_tokyo",
+      "showInNewDrops": true,
+      "showOnStorefront": true,
+      "showInBestSellers": true
+    },
+    {
+      "id": "zenin-limitless-gojo-tee",
+      "gsm": 240,
+      "mrp": 8999,
+      "sku": "ZN-240-LIMITLESS-02",
+      "slug": "limitless-gojo-satoru-oversized-t-shirt",
+      "badge": "⚡ The Honored One",
+      "price": 4499,
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "stock": 69,
+      "theme": "Jujutsu Kaisen · The Honored One",
+      "title": "LIMITLESS / GOJO SATORU OVERSIZED T-SHIRT",
+      "colors": [
+        {
+          "hex": "#0b0c10",
+          "name": "Onyx Black",
+          "previewClass": "bg-[#0b0c10]"
+        }
+      ],
+      "fabric": "240 GSM Super-Combed French Terry Cotton",
+      "rating": 5,
+      "category": "T-Shirts",
+      "imageUrl": "/mockups/limitless__1_/1.png",
+      "subtitle": "240 GSM Luxury Heavyweight • The Honored One",
+      "artworkUrl": "/products/limitless-back.webp",
+      "isArchived": false,
+      "accentColor": "#ec4899",
+      "description": "LIMITLESS // GOJO SATORU OVERSIZED T-SHIRT\n\nFront: Cyberpunk neon-cyan 'LIMITLESS - THE HONORED ONE 五条 悟' chest print.\nBack: High-definition 'THE HONORED ONE - GOJO SATORU' oversized graphic illustration.\n\nQuality:\n- 100% Super-Combed Terry Cotton\n- 240 GSM Luxury Weight\n- Deep Midnight Navy Colorway\n- Relaxed Street Oversized Fit, UNISEX\n\nPart of the Skywear Archive Collection.",
+      "productType": "tshirt",
+      "rewardCoins": 6750,
+      "showInAnime": true,
+      "codAvailable": true,
+      "graphicTitle": "Tokyo Neon Kanji",
+      "imageBackUrl": "/products/limitless-back.webp",
+      "imageGallery": [
+        "/products/limitless-detail-1.webp",
+        "/products/limitless-detail-2.webp"
+      ],
+      "reviewsCount": 84,
+      "imageHoverUrl": "/products/limitless-back.webp",
+      "showInPremium": true,
+      "cashbackPoints": 6750,
+      "graphicSvgType": "cyber_tokyo",
+      "showInNewDrops": true,
+      "showOnStorefront": true,
+      "showInBestSellers": true
+    },
+    {
+      "id": "zenin-butterfly-luxury-tee",
+      "gsm": 280,
+      "mrp": 5999,
+      "sku": "ZN-280-BUTTERFLY-03",
+      "slug": "butterfly-luxury-streetwear-half-sleeves",
+      "badge": "🔥 New Drop",
+      "price": 3499,
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "stock": 60,
+      "theme": "Skywear Archive · Official Drop",
+      "title": "BUTTERFLY / HALF SLEEVES",
+      "colors": [
+        {
+          "hex": "#0b0c10",
+          "name": "Onyx Black",
+          "previewClass": "bg-[#0b0c10]"
+        }
+      ],
+      "fabric": "280 GSM Super-Combed French Terry Cotton",
+      "rating": 4.8,
+      "category": "T-Shirts",
+      "imageUrl": "/mockups/butterfly_final_back/1.png",
+      "subtitle": "280 GSM Luxury Terry Cotton • Limited Collection",
+      "artworkUrl": "/products/butterfly-back.webp",
+      "isArchived": false,
+      "accentColor": "#A855F7",
+      "description": "BUTTERFLY // OVERSIZED HALF SLEEVES T-SHIRT\n\nFront Graphic: Minimalist tactile 'Butterfly Butterfly Butterfly' font styling.\nBack Graphic: Giant purple metallic butterfly graphic illustration with technical streetwear grid typography.\n\nQuality:\n- 100% Pure French Terry Cotton\n- 280 GSM Ultra-Heavyweight Fabric\n- High-Density Tactile Screenprint (Front & Back)\n- Drop-shoulder Boxy Baggy Fit, UNISEX\n- Pre-Shrunk & Bio-Washed for lifetime longevity\n\nPart of the Skywear Limited Collection.",
+      "productType": "tshirt",
+      "rewardCoins": 2000,
+      "showInAnime": true,
+      "codAvailable": true,
+      "graphicTitle": "Tokyo Neon Kanji",
+      "imageBackUrl": "/products/butterfly-back.webp",
+      "imageGallery": [
+        "/products/butterfly-detail-1.webp",
+        "/products/butterfly-detail-2.webp"
+      ],
+      "reviewsCount": 42,
+      "imageHoverUrl": "/products/butterfly-back.webp",
+      "showInPremium": true,
+      "cashbackPoints": 2000,
+      "graphicSvgType": "cyber_tokyo",
+      "showInNewDrops": true,
+      "showOnStorefront": true,
+      "showInBestSellers": true
+    },
+    {
+      "id": "zenin-betrayed-oversized-tee",
+      "gsm": 280,
+      "mrp": 5999,
+      "sku": "ZN-280-BETRAYED-04",
+      "slug": "betrayed-solo-leveling-oversized-t-shirt",
+      "badge": "🔥 New Drop",
+      "price": 3499,
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "stock": 70,
+      "theme": "Solo Leveling · The Absolute Being",
+      "title": "BETRAYED / SOLO LEVELING OVERSIZED T-SHIRT",
+      "colors": [
+        {
+          "hex": "#0b0c10",
+          "name": "Onyx Black",
+          "previewClass": "bg-[#0b0c10]"
+        }
+      ],
+      "fabric": "280 GSM Pure Combed French Terry Cotton",
+      "rating": 4.9,
+      "category": "T-Shirts",
+      "imageUrl": "/products/betrayed-back.webp",
+      "subtitle": "280 GSM Luxury French Terry • Solo Leveling Oversized",
+      "artworkUrl": "/products/betrayed-back.webp",
+      "isArchived": false,
+      "accentColor": "#38bdf8",
+      "description": "BETRAYED // SOLO LEVELING OVERSIZED T-SHIRT\n\nBack Graphic: Giant 'The Absolute Being' statue illustration in deep monochrome & icy-blue tones with piercing crimson eyes, bold 'BETRAYED' streetwear typography and iconic scripture quote.\nFront Graphic: Minimalist triple-layer stacked 'BETRAYED' chest screenprint in electric cyan and white outline.\n\nQuality & Specifications:\n- 100% Pure Combed French Terry Cotton\n- 280 GSM Ultra-Heavyweight Luxury Fabric\n- High-Density Tactile Screenprint (Front & Back)\n- Drop-shoulder Boxy Baggy Fit, UNISEX\n- Pre-Shrunk & Double Bio-Washed for zero shrinkage\n- 1.25\" Reinforced Anti-Bacon Ribbed Collar\n\nPart of the Skywear Archive Collection.",
+      "productType": "tshirt",
+      "showInAnime": true,
+      "codAvailable": true,
+      "graphicTitle": "Solo Leveling Betrayed",
+      "imageBackUrl": "/products/betrayed-front.webp",
+      "imageGallery": [
+        "/products/betrayed-back.webp",
+        "/products/betrayed-front.webp"
+      ],
+      "reviewsCount": 54,
+      "imageHoverUrl": "/products/betrayed-front.webp",
+      "showInPremium": true,
+      "graphicSvgType": "cyber_tokyo",
+      "showInNewDrops": true,
+      "showOnStorefront": true,
+      "showInBestSellers": true,
+      "cashbackPoints": 3499,
+      "rewardCoins": 3499
+    }
+  ],
+  "customers": [],
+  "activeCustomerId": "",
+  "orders": [],
+  "transactions": [],
+  "referrals": [],
+  "withdrawals": [],
+  "auditLogs": [],
+  "support": {
+    "email": "support@skywear.in",
+    "hours": "Mon–Sat, 10:00 AM – 8:00 PM IST",
+    "callNumber": "918349200114",
+    "whatsappNumber": "918349200114",
+    "whatsappMessage": "Hi SKYWARE support, I need help with my order"
+  },
+  "notifications": [],
+  "revision": 310,
+  "reviews": [],
+  "gateways": {
+    "razorpayEnabled": true,
+    "razorpayMode": "live",
+    "ownpayEnabled": false,
+    "manualUpiEnabled": true,
+    "codEnabled": true,
+    "razorpayFee": {
+      "enabled": true,
+      "percent": 2,
+      "flatAmount": 20,
+      "customLabel": "Convenience Fee",
+      "hideBreakdownOnCheckout": true
+    },
+    "ownpayFee": {
+      "enabled": false,
+      "percent": 0,
+      "flatAmount": 0,
+      "customLabel": "Processing Fee",
+      "hideBreakdownOnCheckout": false
+    },
+    "manualUpiFee": {
+      "enabled": false,
+      "percent": 0,
+      "flatAmount": 0,
+      "customLabel": "Processing Fee",
+      "hideBreakdownOnCheckout": false
+    },
+    "codFee": {
+      "enabled": true,
+      "percent": 18,
+      "flatAmount": 40,
+      "customLabel": "COD Handling Fee",
+      "hideBreakdownOnCheckout": false
+    },
+    "updatedAt": "2026-11-01T10:12:22.060Z"
+  },
+  "manualUpi": {
+    "enabled": true,
+    "upiId": "skywear@ptyes",
+    "merchantName": "SkyWear",
+    "instructions": "Scan the QR code using Google Pay, PhonePe, Paytm, or BHIM. Enter your Order # in the payment note/remarks, and submit your 12-digit UTR reference below.",
+    "autoReconciliationEnabled": false,
+    "updatedAt": "2026-11-01T10:12:35.506Z"
+  },
+  "pushSubscriptions": []
+}

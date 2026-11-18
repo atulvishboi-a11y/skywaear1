@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-07",
+  "url": "http://localhost:3000/admin",
+  "healthScore": 100,
+  "issues": [
+    {
+      "id": "issue-001",
+      "title": "Tab switch remount landed on the login screen after a 304 overview response",
+      "severity": "high",
+      "category": "functional",
+      "status": "fixed"
+    },
+    {
+      "id": "issue-002",
+      "title": "Last sidebar destinations clipped behind a hidden scrollbar on shorter viewports",
+      "severity": "medium",
+      "category": "ux",
+      "status": "fixed"
+    }
+  ],
+  "categoryScores": {
+    "console": 100,
+    "links": 100,
+    "visual": 100,
+    "functional": 100,
+    "ux": 100,
+    "performance": 100,
+    "accessibility": null,
+    "content": null
+  }
+}

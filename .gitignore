@@ -1,0 +1,65 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+*.log
+*.bak
+dev-server.log
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# AI agents & editor caches (keep main project clean)
+.agents/
+.claude/
+.codex/
+.cursor/
+.devin/
+.qoder/
+scratch/
+skills-lock.json
+
+# Local data & backups
+.data/
+database_backups/
+prisma.studio.config.ts
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+.vercel
+.env*
+
+cookies.txt
+scratch-*.js
+test-local.png
+exports/
+data/deleted_users_recycle_bin.json

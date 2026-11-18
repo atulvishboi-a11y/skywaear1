@@ -1,0 +1,830 @@
+"use client";
+
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowRight,
+  BadgePercent,
+  Check,
+  Copy,
+  Flame,
+  Gift,
+  Layers,
+  Loader2,
+  RefreshCw,
+  RotateCcw,
+  ScrollText,
+  Send,
+  Share2,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  TriangleAlert,
+  Truck,
+  Wallet,
+  Zap,
+} from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import BottomNav from "@/components/BottomNav";
+import ProductCard from "@/components/ProductCard";
+import FloatingShowcaseCarousel from "@/components/FloatingShowcaseCarousel";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import CollectionsGallery, { type CollectionCard } from "@/components/CollectionsGallery";
+import InstagramBanner from "@/components/InstagramBanner";
+import CartDrawer from "@/components/CartDrawer";
+import CheckoutModal from "@/components/CheckoutModal";
+import CustomerDashboardModal from "@/components/CustomerDashboardModal";
+import AuthModal from "@/components/AuthModal";
+import WishlistModal from "@/components/WishlistModal";
+import TrackOrderModal from "@/components/TrackOrderModal";
+import SizeChartModal from "@/components/SizeChartModal";
+import TShirtMockup from "@/components/TShirtMockup";
+import WebPushNotificationPrompt from "@/components/WebPushNotificationPrompt";
+import type { CartItem, Product } from "@/data/products";
+import type { QuoteResult, StorefrontSnapshot, WithdrawalInput } from "@/lib/contracts";
+import type { ShopOrder } from "@/lib/domain";
+import { FREE_SHIPPING_THRESHOLD, formatRupees } from "@/lib/domain";
+import { cashbackTotals } from "@/lib/vesting";
+import {
+  cashbackForProduct,
+  isAnimeTShirt,
+  isBestseller,
+  isNewDrop,
+  isPremiumTShirt,
+  stockState,
+} from "@/lib/catalog";
+import { api } from "@/lib/client";
+import { toCartLinePayload, useCart, useWishlist } from "@/lib/cart";
+
+type DashboardTab = "orders" | "wallet" | "rewards" | "affiliate" | "profile";
+type Toast = { id: number; kind: "success" | "error"; message: string };
+
+const SORTS = [
+  { value: "featured", label: "Featured" },
+  { value: "price-asc", label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
+  { value: "rating", label: "Top Rated" },
+  { value: "discount", label: "Biggest Discount" },
+] as const;
+
+type SortValue = (typeof SORTS)[number]["value"];
+
+function discountPercent(product: Product): number {
+  if (!product.mrp || product.mrp <= product.price) return 0;
+  return Math.round(((product.mrp - product.price) / product.mrp) * 100);
+}
+
+function useReveal<T extends HTMLElement>() {
+  const [visible, setVisible] = useState(false);
+
+  const attach = useCallback((node: T | null) => {
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          setVisible(true);
+          observer.disconnect();
+        });
+      },
+      { threshold: 0.12 }
+    );
+    observer.observe(node);
+  }, []);
+
+  return [attach, `zenin-reveal ${visible ? "is-visible" : ""}`] as const;
+}
+
+export default function Storefront() {
+  const router = useRouter();
+  const [snapshot, setSnapshot] = useState<StorefrontSnapshot | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [quote, setQuote] = useState<QuoteResult | null>(null);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+  const [coupon, setCoupon] = useState("");
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [pointsRedeemed, setPointsRedeemed] = useState(0);
+  const [referralCode, setReferralCode] = useState("");
+
+  const [isCartOpen, setCartOpen] = useState(false);
+  const [isCheckoutOpen, setCheckoutOpen] = useState(false);
+  const [isDashboardOpen, setDashboardOpen] = useState(false);
+  const [dashboardTab, setDashboardTab] = useState<DashboardTab>("orders");
+  const [isAuthOpen, setAuthOpen] = useState(false);
+  const [isWishlistOpen, setWishlistOpen] = useState(false);
+  const [isTrackOpen, setTrackOpen] = useState(false);
+  const [isSizeChartOpen, setSizeChartOpen] = useState(false);
+
+  const [category, setCategory] = useState("all");
+  const [size, setSize] = useState("all");
+  const [sort, setSort] = useState<SortValue>("featured");
+  const [search, setSearch] = useState("");
+  const [filterTab, setFilterTab] = useState<"all" | "premium" | "new" | "bestseller">("all");
+  const [vipInput, setVipInput] = useState("");
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const cart = useCart();
+  const wishlist = useWishlist();
+  const [attachCatalog, catalogClass] = useReveal<HTMLElement>();
+
+  const pushToast = useCallback((kind: Toast["kind"], message: string) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, kind, message }]);
+    window.setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4200);
+  }, []);
+
+  const refresh = useCallback(async () => {
+    try {
+      const next = await api.storefront();
+      setSnapshot(next);
+      setLoadError(null);
+      return next;
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Storefront failed to load");
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (!ref) return;
+    const code = ref.toUpperCase();
+    setReferralCode(code);
+    pushToast("success", `Referral ${code} linked — 10% cashback in coins unlocked on delivery`);
+  }, [pushToast]);
+
+  useEffect(() => {
+    if (cart.items.length === 0) {
+      setQuote(null);
+      setCouponError(null);
+      setQuoteLoading(false);
+      return;
+    }
+
+    const handle = window.setTimeout(async () => {
+      setQuoteLoading(true);
+      try {
+        const next = await api.quoteOrder({
+          items: toCartLinePayload(cart.items),
+          couponCode: coupon || undefined,
+          pointsRedeemed,
+        });
+        setQuote(next);
+        setCouponError(null);
+      } catch (error) {
+        setQuote(null);
+        setCouponError(error instanceof Error ? error.message : "Could not price this cart");
+      } finally {
+        setQuoteLoading(false);
+      }
+    }, 320);
+
+    return () => window.clearTimeout(handle);
+  }, [cart.items, coupon, pointsRedeemed]);
+
+  const products = snapshot?.products ?? [];
+  const rules = snapshot?.rewardRules;
+  const customer = snapshot?.customer ?? null;
+
+  // Top Showcase: Flagship / New Drops featured exclusively in the top 3D carousel
+  const showcaseProducts = useMemo(() => {
+    const tees = products.filter(isAnimeTShirt);
+    const fresh = tees.filter(isNewDrop);
+    // Take new drops or top flagship drops for the 3D showcase carousel (up to 3 items)
+    return (fresh.length >= 2 ? fresh : (fresh.length > 0 ? fresh : tees.slice(0, 3))).slice(0, 3);
+  }, [products]);
+
+  const showcaseIds = useMemo(
+    () => new Set(showcaseProducts.map((p) => p.id)),
+    [showcaseProducts]
+  );
+
+  const animeThemes = useMemo(() => {
+    const list = products.filter(isAnimeTShirt).map((p) => {
+      return p.theme?.split("·")[0]?.trim() || "Anime Streetwear";
+    });
+    return Array.from(new Set(list));
+  }, [products]);
+
+  const categories = useMemo(() => ["all", ...animeThemes], [animeThemes]);
+
+  const premiumProducts = useMemo(
+    () => products.filter((p) => isPremiumTShirt(p) && !showcaseIds.has(p.id)),
+    [products, showcaseIds]
+  );
+
+  const collections = useMemo<CollectionCard[]>(() => {
+    const groups = new Map<string, Product[]>();
+    products.filter(isAnimeTShirt).forEach((p) => {
+      const franchise = p.theme?.split("·")[0]?.trim() || "Anime Streetwear";
+      const list = groups.get(franchise) ?? [];
+      list.push(p);
+      groups.set(franchise, list);
+    });
+
+    const tiles: CollectionCard[] = [];
+    Array.from(groups.entries()).forEach(([franchise, items]) => {
+      const hero = items.find((p) => p.imageUrl || p.artworkUrl);
+      const image = hero?.imageUrl ?? hero?.artworkUrl;
+      if (!image) return;
+      tiles.push({
+        id: franchise,
+        label: franchise,
+        category: franchise,
+        desc: `${items.length} Heavyweight Drops`,
+        image,
+        count: items.length,
+      });
+    });
+    return tiles;
+  }, [products]);
+
+  const sizes = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => p.sizes.forEach((s) => set.add(s)));
+    return ["all", ...Array.from(set)];
+  }, [products]);
+
+  const wishlistedProducts = useMemo(
+    () => products.filter((product) => wishlist.ids.includes(product.id)),
+    [products, wishlist.ids]
+  );
+
+  const visibleProducts = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const filtered = products.filter((product) => {
+      // The t-shirt that is on top should NOT be visible below ("jo t shirt uper hai wo neeche nhi dekhni chihye uper ki bus uper rahna chiyeee")
+      if (showcaseIds.has(product.id)) return false;
+
+      if (filterTab === "premium" && !isPremiumTShirt(product)) return false;
+      if (filterTab === "new" && !isNewDrop(product)) return false;
+      if (filterTab === "bestseller" && !isBestseller(product)) return false;
+      if (category !== "all") {
+        const franchise = product.theme?.split("·")[0]?.trim();
+        if (franchise !== category && product.category !== category) return false;
+      }
+      if (size !== "all" && !product.sizes.includes(size)) return false;
+      if (!query) return true;
+      return [product.title, product.subtitle, product.category, product.theme, product.graphicTitle, product.description]
+        .join(" ")
+        .toLowerCase()
+        .includes(query);
+    });
+
+    // Featured pushes sold-out rows down and puts premium / bestseller drops up top.
+    const rank = (p: Product) => (stockState(p).purchasable ? 0 : 2) + (isPremiumTShirt(p) || isBestseller(p) ? 0 : 1);
+    return [...filtered].sort((a, b) => {
+      if (sort === "price-asc") return a.price - b.price;
+      if (sort === "price-desc") return b.price - a.price;
+      if (sort === "rating") return b.rating - a.rating;
+      if (sort === "discount") return discountPercent(b) - discountPercent(a);
+      return rank(a) - rank(b) || b.reviewsCount - a.reviewsCount;
+    });
+  }, [products, category, size, search, sort, filterTab, showcaseIds]);
+
+  const collectionHeading =
+    filterTab === "premium"
+      ? "Premium Drops"
+      : filterTab === "new"
+        ? "New Drops"
+        : filterTab === "bestseller"
+          ? "Best Sellers"
+          : "All Drops";
+
+  const scrollToCatalog = useCallback(() => {
+    document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  const handleSelectCollection = useCallback(
+    (card: CollectionCard) => {
+      if (card.tab) {
+        setFilterTab(card.tab);
+        setCategory("all");
+      } else if (card.category) {
+        setCategory(card.category);
+        setFilterTab("all");
+      }
+      scrollToCatalog();
+    },
+    [scrollToCatalog]
+  );
+
+  const openDashboard = useCallback(
+    (tab: DashboardTab = "orders") => {
+      router.push(`/portal/${tab}`);
+    },
+    [router]
+  );
+
+  const handleAddToCart = useCallback(
+    (item: CartItem) => {
+      cart.add(item);
+      setCartOpen(true);
+      pushToast("success", `${item.title} · ${item.size} added to bag`);
+    },
+    [cart, pushToast]
+  );
+
+  const handleBuyNow = useCallback(
+    (item: CartItem) => {
+      cart.add(item);
+      setCartOpen(false);
+      setCheckoutOpen(true);
+    },
+    [cart]
+  );
+
+  const handleOrderPlaced = useCallback(
+    async (order: ShopOrder) => {
+      cart.clear();
+      setCoupon("");
+      setPointsRedeemed(0);
+      if (order.paymentMethod === "MANUAL_UPI") {
+        if (order.paymentStatus === "PAID") {
+          pushToast(
+            "success",
+            `Order ${order.orderNumber} confirmed · ${cashbackTotals(order.cashback).releasedPoints} coins unlocked`
+          );
+        } else if (order.utr) {
+          pushToast(
+            "success",
+            `Order #${order.orderNumber} placed · UTR submitted for admin verification`
+          );
+        } else {
+          pushToast(
+            "success",
+            `Order #${order.orderNumber} initiated · Complete UPI transfer to verify`
+          );
+        }
+      } else {
+        pushToast(
+          "success",
+          `Order ${order.orderNumber} confirmed · ${cashbackTotals(order.cashback).releasedPoints} coins unlocked, rest vest weekly`
+        );
+      }
+      await refresh();
+    },
+    [cart, pushToast, refresh]
+  );
+
+  const submitWithdrawal = useCallback(
+    async (input: WithdrawalInput) => {
+      try {
+        const result = await api.withdraw(input);
+        await refresh();
+        pushToast(
+          "success",
+          `Instant withdrawal created · ${result.withdrawal.totalPoints} coins transferred to your payout account`
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Withdrawal failed";
+        pushToast("error", message);
+        throw error;
+      }
+    },
+    [refresh, pushToast]
+  );
+
+  const handleClaimCashback = useCallback(
+    async (options?: { orderId?: string; week?: number }) => {
+      try {
+        const result = await api.claimCashback(options);
+        await refresh();
+        pushToast(
+          "success",
+          `Collected ${result.claimedPoints} coins into your Live Wallet!`
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Collecting cashback failed";
+        pushToast("error", message);
+        throw error;
+      }
+    },
+    [refresh, pushToast]
+  );
+
+  const copy = useCallback(
+    async (value: string, label: string) => {
+      try {
+        await navigator.clipboard.writeText(value);
+        pushToast("success", `${label} copied`);
+      } catch {
+        pushToast("error", "Clipboard unavailable on this device");
+      }
+    },
+    [pushToast]
+  );
+
+  const hero = products.slice(0, 2);
+  const availableCoins = customer?.availablePoints ?? 0;
+  const coinValue = rules?.pointValueInRupees ?? 0.5;
+  const coinsPerHundred = Math.round((rules?.cashbackPercent ?? 10) / coinValue);
+
+  if (loadError && !snapshot) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center">
+        <TriangleAlert className="w-10 h-10 text-rose-600" />
+        <h1 className="text-lg font-bold uppercase tracking-widest">Storefront unavailable</h1>
+        <p className="text-xs text-neutral-600 max-w-sm">{loadError}</p>
+        <button
+          onClick={() => void refresh()}
+          className="zenin-btn px-5 py-2.5 text-xs flex items-center gap-2"
+        >
+          <RefreshCw className="w-4 h-4" /> Retry
+        </button>
+      </main>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[var(--bg-zenin)] text-[var(--text-zenin)] transition-colors duration-200 pb-20 lg:pb-0">
+      <Header
+        cartCount={cart.count}
+        wishlistCount={wishlist.count}
+        walletPoints={availableCoins}
+        pointValue={coinValue}
+        cashbackPercent={rules?.cashbackPercent}
+        support={snapshot?.support}
+        themes={animeThemes}
+        activeCategory={category}
+        onOpenCart={() => setCartOpen(true)}
+        onOpenWishlist={() => setWishlistOpen(true)}
+        onOpenAccount={(tab) => openDashboard((tab as DashboardTab) ?? "orders")}
+        onOpenTrackOrder={() => setTrackOpen(true)}
+        onSelectCategory={(next) => {
+          setCategory(next);
+          setFilterTab("all");
+          scrollToCatalog();
+        }}
+        onSelectTab={(tab) => {
+          setFilterTab(tab);
+          setCategory("all");
+        }}
+        onSearch={setSearch}
+      />
+
+      {/* 3D Perspective Floating Showcase Carousel matching zenin.co.in */}
+      <FloatingShowcaseCarousel
+        products={showcaseProducts}
+        rules={rules}
+        onSelectProduct={() => {}}
+      />
+
+      {/* Streetwear Specs / Trust Bar — Solid Colors & Sharp Edges */}
+      <section className="w-full bg-[#0B0C10] border-y border-[#282C34] py-4">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 font-mono">
+          <div className="bg-[#16181D] border border-[#282C34] p-3.5 flex items-center gap-3">
+            <div className="w-9 h-9 bg-[#0B0C10] border border-[#00F0FF]/40 text-[#00F0FF] flex items-center justify-center shrink-0">
+              <Layers className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-[#F5F5F7] tracking-wider uppercase">240+ GSM Cotton</div>
+              <div className="text-[10px] text-[#8E929B]">Heavyweight French Terry</div>
+            </div>
+          </div>
+
+          <div className="bg-[#16181D] border border-[#282C34] p-3.5 flex items-center gap-3">
+            <div className="w-9 h-9 bg-[#0B0C10] border border-[#00FF66]/40 text-[#00FF66] flex items-center justify-center shrink-0">
+              <Wallet className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-[#F5F5F7] tracking-wider uppercase">10% Cash Coins</div>
+              <div className="text-[10px] text-[#8E929B]">Redeem on your next order</div>
+            </div>
+          </div>
+
+          <div className="bg-[#16181D] border border-[#282C34] p-3.5 flex items-center gap-3">
+            <div className="w-9 h-9 bg-[#0B0C10] border border-[#F5F5F7]/40 text-[#F5F5F7] flex items-center justify-center shrink-0">
+              <Truck className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-[#F5F5F7] tracking-wider uppercase">Express Shipping</div>
+              <div className="text-[10px] text-[#8E929B]">Free on orders ₹999+</div>
+            </div>
+          </div>
+
+          <div className="bg-[#16181D] border border-[#282C34] p-3.5 flex items-center gap-3">
+            <div className="w-9 h-9 bg-[#0B0C10] border border-[#00F0FF]/40 text-[#00F0FF] flex items-center justify-center shrink-0">
+              <RotateCcw className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-[#F5F5F7] tracking-wider uppercase">7-Day Exchanges</div>
+              <div className="text-[10px] text-[#8E929B]">Doorstep pickup & swap</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Merchandised Anime Collections */}
+      <CollectionsGallery
+        collections={collections}
+        onSelectCard={handleSelectCollection}
+      />
+
+      {/* Catalog */}
+      <section id="products-section" ref={attachCatalog} className={`${catalogClass} max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 pt-12 pb-16`}>
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#282C34] pb-4 mb-6 gap-3">
+          <div>
+            <div className="text-[10px] font-mono tracking-widest uppercase text-[#00FF66] mb-1">
+              [COLLECTION // SS-26 ARCHIVE]
+            </div>
+            <h2
+              className="text-2xl sm:text-3xl md:text-4xl font-bold uppercase tracking-tight text-white font-sans"
+              style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}
+            >
+              {collectionHeading}
+            </h2>
+          </div>
+          <div className="flex items-center gap-3 text-xs font-mono text-[#8E929B]">
+            <span className="px-2.5 py-1 bg-[#16181D] border border-[#282C34] text-white font-bold">
+              {visibleProducts.length} PIECES
+            </span>
+            <span className="text-[#00F0FF]">[240 GSM SUPER-COMBED]</span>
+          </div>
+        </div>
+
+        {/* Brutalist Filter Toolbar — Solid 90° Corner Pills */}
+        <div className="bg-[#16181D] border border-[#282C34] p-4 mb-8 font-mono space-y-3">
+          {/* Main Filter Tabs */}
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] text-[#8E929B] uppercase font-bold mr-1 flex items-center gap-1">
+                <SlidersHorizontal className="w-3 h-3 text-[#00FF66]" /> FILTER:
+              </span>
+              {(
+                [
+                  { id: "all", label: "ALL DROPS" },
+                  { id: "premium", label: "HEAVYWEIGHT 240+ GSM" },
+                  { id: "new", label: "NEW DROPS" },
+                  { id: "bestseller", label: "BEST SELLERS" },
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setFilterTab(tab.id);
+                    setCategory("all");
+                  }}
+                  className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border ${
+                    filterTab === tab.id
+                      ? "bg-[#00FF66] text-[#0B0C10] border-[#00FF66]"
+                      : "bg-[#0B0C10] text-[#F5F5F7] border-[#282C34] hover:border-[#8E929B]"
+                  }`}
+                  style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Sort Select */}
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-[#8E929B] uppercase font-bold">SORT:</span>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortValue)}
+                className="bg-[#0B0C10] border border-[#282C34] text-xs font-mono text-[#F5F5F7] px-3 py-1.5 focus:outline-none focus:border-[#00FF66] cursor-pointer"
+              >
+                {SORTS.map((s) => (
+                  <option key={s.value} value={s.value} className="bg-[#0B0C10] text-[#F5F5F7]">
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Franchise / Anime Theme Bar */}
+          {categories.length > 1 && (
+            <div className="pt-3 border-t border-[#282C34] flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] text-[#8E929B] uppercase font-bold mr-1">SERIES:</span>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={`px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer border ${
+                    category === cat
+                      ? "bg-[#F5F5F7] text-[#0B0C10] font-black border-[#F5F5F7]"
+                      : "bg-[#0B0C10] text-[#8E929B] border-[#282C34] hover:text-[#F5F5F7] hover:border-[#8E929B]"
+                  }`}
+                >
+                  {cat === "all" ? "ALL SERIES" : cat}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Size Filter Bar */}
+          <div className="pt-2 flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] text-[#8E929B] uppercase font-bold mr-1">SIZE:</span>
+            {sizes.map((sz) => (
+              <button
+                key={sz}
+                onClick={() => setSize(sz)}
+                className={`h-6 min-w-7 px-1.5 text-[10px] font-mono uppercase transition-colors cursor-pointer border ${
+                  size === sz
+                    ? "bg-[#00F0FF] text-[#0B0C10] font-black border-[#00F0FF]"
+                    : "bg-[#0B0C10] text-[#8E929B] border-[#282C34] hover:text-[#F5F5F7] hover:border-[#8E929B]"
+                }`}
+              >
+                {sz.toUpperCase()}
+              </button>
+            ))}
+            {(category !== "all" || size !== "all" || filterTab !== "all" || search) && (
+              <button
+                onClick={() => {
+                  setCategory("all");
+                  setSize("all");
+                  setFilterTab("all");
+                  setSearch("");
+                }}
+                className="ml-auto text-[10px] font-mono text-rose-400 hover:text-rose-300 underline cursor-pointer"
+              >
+                [RESET FILTERS]
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {products.length === 0
+            ? [0, 1, 2].map((i) => <div key={i} className="zenin-card aspect-[3/4] animate-pulse" />)
+            : visibleProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                  isWishlisted={wishlist.has(product.id)}
+                  onToggleWishlist={wishlist.toggle}
+                  rules={rules}
+                />
+              ))}
+        </div>
+
+        {visibleProducts.length === 0 && products.length > 0 && (
+          <div className="zenin-card p-10 text-center mt-6 border border-[#282C34] bg-[#16181D]">
+            <p className="text-sm font-bold uppercase tracking-wider text-white">Nothing matches those filters</p>
+            <p className="text-xs text-neutral-400 mt-2">Try clearing your size, franchise category, or search filter.</p>
+            <button
+              onClick={() => {
+                setCategory("all");
+                setSize("all");
+                setFilterTab("all");
+                setSearch("");
+              }}
+              className="mt-4 px-4 py-2 bg-[#F5F5F7] text-[#0B0C10] text-xs font-mono font-bold uppercase hover:bg-[#00FF66] transition-colors"
+            >
+              SHOW ALL ARCHIVES
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* Instagram 171K Followers Community Banner */}
+      <InstagramBanner />
+
+      <Footer
+        support={snapshot?.support}
+        onOpenTrackOrder={() => setTrackOpen(true)}
+        onOpenSizeChart={() => setSizeChartOpen(true)}
+        onSelectCategory={(next) => {
+          setCategory(next);
+          scrollToCatalog();
+        }}
+      />
+
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setCartOpen(false)}
+        items={cart.items}
+        quote={quote}
+        quoteLoading={quoteLoading}
+        coupon={coupon}
+        coupons={snapshot?.coupons ?? []}
+        couponError={couponError}
+        onApplyCoupon={(code) => {
+          setCoupon(code.trim().toUpperCase());
+          setCouponError(null);
+        }}
+        onRemoveCoupon={() => setCoupon("")}
+        onUpdateQuantity={cart.updateQuantity}
+        onRemoveItem={cart.removeItem}
+        onOpenCheckout={() => {
+          if (!customer) {
+            setAuthOpen(true);
+            return;
+          }
+          setCartOpen(false);
+          setCheckoutOpen(true);
+        }}
+      />
+
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        items={cart.items}
+        snapshot={snapshot}
+        quote={quote}
+        coupon={coupon}
+        initialReferralCode={referralCode}
+        pointsRedeemed={pointsRedeemed}
+        onPointsRedeemedChange={setPointsRedeemed}
+        onPlaced={(order) => void handleOrderPlaced(order)}
+        onUpdateQuantity={cart.updateQuantity}
+        onRemoveItem={cart.removeItem}
+      />
+
+
+
+      <CustomerDashboardModal
+        isOpen={isDashboardOpen}
+        onClose={() => setDashboardOpen(false)}
+        initialTab={dashboardTab}
+        snapshot={snapshot}
+        onSubmitWithdrawal={submitWithdrawal}
+        onClaimCashback={handleClaimCashback}
+      />
+
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setAuthOpen(false)}
+        onSignedIn={() => {
+          void refresh();
+          pushToast("success", "Signed in — wallet synced");
+        }}
+      />
+
+      <WishlistModal
+        isOpen={isWishlistOpen}
+        onClose={() => setWishlistOpen(false)}
+        products={wishlistedProducts}
+        onRemoveFromWishlist={wishlist.remove}
+        onAddToCart={(product) => {
+          cart.addProduct(product, product.sizes.includes("L") ? "L" : product.sizes[0], product.colors[0].name);
+          setWishlistOpen(false);
+          setCartOpen(true);
+        }}
+      />
+
+      <TrackOrderModal
+        isOpen={isTrackOpen}
+        onClose={() => setTrackOpen(false)}
+        support={snapshot?.support}
+      />
+
+      <SizeChartModal isOpen={isSizeChartOpen} onClose={() => setSizeChartOpen(false)} />
+
+      <BottomNav
+        onGoHome={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        onGoCatalog={scrollToCatalog}
+        onOpenOrders={() => openDashboard("orders")}
+        onOpenAccount={() => openDashboard("profile")}
+        walletPoints={availableCoins}
+      />
+
+      {snapshot?.support && <FloatingWhatsApp support={snapshot.support} />}
+      <WebPushNotificationPrompt customerId={snapshot?.customer?.id} />
+
+      {/* Toasts — lifted so they never sit on top of the WhatsApp bubble */}
+      <div className="fixed bottom-[8.5rem] left-3 right-3 sm:left-auto sm:right-6 md:bottom-[5.5rem] z-[70] flex flex-col gap-2 items-stretch sm:items-end pointer-events-none">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            role="status"
+            className={`zenin-sheet pointer-events-auto flex items-start gap-2.5 max-w-sm px-4 py-3 rounded-none border shadow-xl text-xs font-mono font-medium ${
+              toast.kind === "success"
+                ? "bg-[#121212] text-white border-[#00FF66]/50"
+                : "bg-[#121212] text-rose-300 border-rose-500/50"
+            }`}
+          >
+            {toast.kind === "success" ? (
+              <Check className="w-4 h-4 mt-px text-[#00FF66] shrink-0" />
+            ) : (
+              <TriangleAlert className="w-4 h-4 mt-px text-rose-400 shrink-0" />
+            )}
+            <span className="min-w-0">{toast.message}</span>
+          </div>
+        ))}
+      </div>
+
+      {quoteLoading && (
+        <div className="fixed bottom-24 lg:bottom-6 left-1/2 -translate-x-1/2 z-[65] flex items-center gap-2 px-3 py-1.5 rounded-none bg-[#0B0C10] border border-[#282C34] text-white text-[10px] font-mono uppercase tracking-widest pointer-events-none">
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00FF66]" /> Recalculating
+        </div>
+      )}
+
+      {!snapshot && (
+        <div className="fixed bottom-3 left-3 z-[65] flex items-center gap-2 px-3 py-1.5 rounded-none bg-[#0B0C10] border border-[#282C34] text-white text-[10px] font-mono uppercase tracking-widest pointer-events-none">
+          <Flame className="w-3.5 h-3.5 text-amber-300" /> Loading drops
+        </div>
+      )}
+    </div>
+  );
+}

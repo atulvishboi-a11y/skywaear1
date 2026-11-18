@@ -1,0 +1,36 @@
+{
+  "runId": "run-20261105T193758Z",
+  "target": "localhost:3000",
+  "surface": "browser",
+  "session": "signed-in customer (Rahul Sharma)",
+  "viewport": { "width": 443, "height": 900, "deviceScaleFactor": 1 },
+  "browser": "Chromium (browser-use MCP)",
+  "capturedAt": "2026-11-05T19:37:58Z",
+  "routes": [
+    { "path": "/", "horizontalOverflow": false, "bottomNavCount": 1, "duplicateIds": [], "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account", "horizontalOverflow": false, "bottomNavCount": 1, "duplicateIds": [], "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/wallet", "horizontalOverflow": false, "bottomNavCount": 1, "duplicateIds": [], "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/withdrawals", "horizontalOverflow": false, "bottomNavCount": 1, "duplicateIds": [], "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/rewards", "horizontalOverflow": false, "bottomNavCount": 1, "duplicateIds": [], "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/affiliate", "horizontalOverflow": false, "bottomNavCount": 1, "duplicateIds": [], "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/shop", "horizontalOverflow": false, "bottomNavCount": 1, "duplicateIds": [], "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/orders", "horizontalOverflow": false, "bottomNavCount": 1, "duplicateIds": [], "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/track", "horizontalOverflow": false, "bottomNavCount": 1, "duplicateIds": [], "consoleErrors": 0, "status": "pass" },
+    { "path": "/products/[slug]", "horizontalOverflow": false, "bottomNavCount": 1, "duplicateIds": [], "consoleErrors": 0, "consoleWarnings": 2, "status": "pass" }
+  ],
+  "gates": {
+    "typecheck": { "command": "npx tsc --noEmit", "exitCode": 0, "errors": 0 },
+    "lint": { "command": "npx eslint src/app/layout.tsx src/app/account/AccountView.tsx src/components/WalletPanel.tsx src/lib/server/services.ts src/lib/contracts.ts", "problems": 51, "newProblemsIntroduced": 0 }
+  },
+  "fixesApplied": 4,
+  "deferred": [
+    "product-page image preload warnings",
+    "leaderboard empty state on local legacy data",
+    "pre-existing eslint findings",
+    "no git isolation (repo not a git repository)"
+  ],
+  "notExercised": [
+    "end-to-end money movement (balances must not be mutated for UI tests)",
+    "desktop viewport full browser pass"
+  ]
+}

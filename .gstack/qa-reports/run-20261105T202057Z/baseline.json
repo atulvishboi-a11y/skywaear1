@@ -1,0 +1,31 @@
+{
+  "runId": "run-20261105T202057Z",
+  "target": "localhost:3000",
+  "surface": "browser",
+  "session": "signed-in customer (Rahul Sharma)",
+  "viewport": { "width": 443, "height": 637 },
+  "routes": [
+    { "path": "/app/account", "h1": "My Orders & Tracking", "horizontalOverflow": false, "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/wallet", "h1": "Cashback Wallet", "horizontalOverflow": false, "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/withdrawals", "h1": "Withdrawals & Payouts", "horizontalOverflow": false, "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/rewards", "h1": "Reward Engine", "horizontalOverflow": false, "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/affiliate", "h1": "Affiliate & Referrals", "horizontalOverflow": false, "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/shop", "h1": "Shop the Archive", "horizontalOverflow": false, "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/notifications", "h1": "Alerts & Updates", "horizontalOverflow": false, "consoleErrors": 0, "status": "pass" },
+    { "path": "/app/account/profile", "h1": "Profile & Addresses", "horizontalOverflow": false, "consoleErrors": 0, "status": "pass" }
+  ],
+  "gates": {
+    "eslint": { "files": 6, "problemsBefore": 51, "problemsAfter": 0 },
+    "typecheck": { "command": "npx tsc --noEmit", "exitCode": 0 }
+  },
+  "behaviourFixes": [
+    "tab content now tracks usePathname (stale useParams after client navigation)",
+    "claim milestones derive from snapshot instead of effect state",
+    "wallet UPI/bank form no longer mirrors props via effects"
+  ],
+  "deferred": [
+    "product-page image preload warnings",
+    "leaderboard empty state on legacy local data",
+    "end-to-end money movement (balances not mutated)"
+  ]
+}

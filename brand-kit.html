@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B0C10" />
+  <title>SKYWEAR // Brand Kit Specification (Breaver Studios Inspired)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-canvas: #0B0C10;
+      --bg-surface: #16181D;
+      --bg-subtle: #1F232B;
+      --border: #282C34;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --lime: #00FF66;
+      --cyan: #00F0FF;
+      --crimson: #D9362B;
+      --chalk: #F5F5F7;
+      --muted: #8E929B;
+      --display: 'Space Grotesk', system-ui, sans-serif;
+      --mono: 'Space Mono', monospace;
+      --body: 'Work Sans', system-ui, sans-serif;
+      --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-canvas);
+      color: var(--chalk);
+      font-family: var(--mono);
+      line-height: 1.6;
+      padding: 0;
+      overflow-x: hidden;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    .wrapper { max-width: 1200px; margin: 0 auto; padding: 40px 24px 100px; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 28px;
+      background: rgba(22, 24, 29, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 20px;
+      z-index: 50;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+    }
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(0, 255, 102, 0.1);
+      border: 1px solid rgba(0, 255, 102, 0.3);
+      color: var(--lime);
+    }
+    .hero {
+      padding: 90px 0 60px;
+      border-bottom: 1px solid var(--border);
+    }
+    .meta-tag {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: var(--display);
+      font-size: clamp(40px, 7vw, 84px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    h1 span {
+      background: linear-gradient(90deg, var(--lime), var(--cyan), var(--chalk));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-p {
+      font-family: var(--body);
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 680px;
+      line-height: 1.7;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 36px;
+    }
+    .metric-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .metric-card span { display: block; font-size: 10px; text-transform: uppercase; color: var(--muted); }
+    .metric-card strong { display: block; font-size: 22px; font-weight: 700; color: white; margin-top: 4px; }
+    
+    section { padding: 60px 0; border-bottom: 1px solid var(--border); }
+    h2 { font-family: var(--display); font-size: 28px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+    .sec-sub { font-size: 12px; color: var(--muted); margin-bottom: 32px; max-width: 600px; }
+    
+    .grid-swatches {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .swatch {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      cursor: pointer;
+      transition: transform 0.2s var(--ease), border-color 0.2s ease;
+    }
+    .swatch:hover { transform: translateY(-4px); border-color: var(--lime); }
+    .swatch-fill {
+      height: 120px;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .swatch-info { padding-top: 12px; }
+    .swatch-name { font-size: 12px; font-weight: 700; color: white; }
+    .swatch-role { font-size: 11px; color: var(--muted); font-family: var(--body); }
+
+    .blueprint-box {
+      background: #0B0C10;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 60px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .circle-1 { position: absolute; width: 320px; height: 320px; border: 1px solid rgba(0, 255, 102, 0.18); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+    .circle-2 { position: absolute; width: 200px; height: 200px; border: 1px solid rgba(0, 240, 255, 0.18); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+    
+    .type-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .type-specimen { font-size: 28px; line-height: 1.2; color: white; margin: 16px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <div style="font-weight: 700; font-size: 13px; letter-spacing: 0.1em;">
+        SKYWEAR // SPEC
+      </div>
+      <div class="badge">BREAVER STUDIOS SPECIFICATION</div>
+      <a href="/" style="font-size: 11px; color: var(--muted); text-decoration: none;">STOREFRONT ↗</a>
+    </header>
+
+    <div class="hero">
+      <div class="meta-tag">SPECIFICATION V4.2 // ARCHETYPE: DARK_TECH</div>
+      <h1>CRAFTED FOR THE <span>DISOBEDIENT.</span></h1>
+      <p class="hero-p">
+        Official Brand Identity and Design Engineering System for Skywear. Inspired by the strategy-led craft of Breaver Studios and Vanguard Design.
+      </p>
+
+      <div class="metrics">
+        <div class="metric-card">
+          <span>FABRIC ARCHITECTURE</span>
+          <strong>240 GSM</strong>
+        </div>
+        <div class="metric-card">
+          <span>ACCENT FREQUENCY</span>
+          <strong style="color: var(--lime);">#00FF66 LIME</strong>
+        </div>
+        <div class="metric-card">
+          <span>TYPOGRAPHY HIERARCHY</span>
+          <strong>SPACE GROTESK</strong>
+        </div>
+        <div class="metric-card">
+          <span>TARGET PLATFORM</span>
+          <strong>PWA STANDALONE</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- 01 // PALETTE -->
+    <section>
+      <h2>01 // Calibrated Color Tokens</h2>
+      <p class="sec-sub">OLED-tuned and screen-print pigment-matched tokens.</p>
+      
+      <div class="grid-swatches">
+        <div class="swatch" onclick="navigator.clipboard.writeText('#0B0C10'); alert('Copied #0B0C10');">
+          <div class="swatch-fill" style="background: #0B0C10; color: white;">
+            <span style="font-size: 10px;">CANVAS</span>
+            <strong>#0B0C10</strong>
+          </div>
+          <div class="swatch-info">
+            <div class="swatch-name">Obsidian Core</div>
+            <div class="swatch-role">Deep Space OLED Canvas</div>
+          </div>
+        </div>
+
+        <div class="swatch" onclick="navigator.clipboard.writeText('#16181D'); alert('Copied #16181D');">
+          <div class="swatch-fill" style="background: #16181D; color: white;">
+            <span style="font-size: 10px;">SURFACE</span>
+            <strong>#16181D</strong>
+          </div>
+          <div class="swatch-info">
+            <div class="swatch-name">Carbon Surface</div>
+            <div class="swatch-role">Double-Bezel Hardware Shell</div>
+          </div>
+        </div>
+
+        <div class="swatch" onclick="navigator.clipboard.writeText('#00FF66'); alert('Copied #00FF66');">
+          <div class="swatch-fill" style="background: #00FF66; color: #0B0C10;">
+            <span style="font-size: 10px;">ACCENT</span>
+            <strong>#00FF66</strong>
+          </div>
+          <div class="swatch-info">
+            <div class="swatch-name">Kinetic Lime</div>
+            <div class="swatch-role">High-Voltage Instant Cashback</div>
+          </div>
+        </div>
+
+        <div class="swatch" onclick="navigator.clipboard.writeText('#00F0FF'); alert('Copied #00F0FF');">
+          <div class="swatch-fill" style="background: #00F0FF; color: #0B0C10;">
+            <span style="font-size: 10px;">ACCENT</span>
+            <strong>#00F0FF</strong>
+          </div>
+          <div class="swatch-info">
+            <div class="swatch-name">Photonic Cyan</div>
+            <div class="swatch-role">Holographic Streetwear Trim</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 // BLUEPRINT -->
+    <section>
+      <h2>02 // Geometric Construction Grid</h2>
+      <p class="sec-sub">Golden ratio (1:1.618) concentric boundaries and 2X exclusion zone.</p>
+      
+      <div class="blueprint-box">
+        <div class="circle-1"></div>
+        <div class="circle-2"></div>
+        <div style="font-family: var(--display); font-size: 42px; font-weight: 700; letter-spacing: 0.15em; position: relative; z-index: 2;">
+          SKYWEAR
+        </div>
+        <div style="font-size: 10px; color: var(--lime); letter-spacing: 0.3em; margin-top: 8px; position: relative; z-index: 2;">
+          HEAVYWEIGHT APPAREL
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 // TYPE -->
+    <section>
+      <h2>03 // Typographic Specimen Scale</h2>
+      <p class="sec-sub">Mechanical grotesque display paired with terminal telemetry monospace.</p>
+      
+      <div class="type-card">
+        <div style="font-size: 10px; color: var(--lime);">[DISPLAY] SPACE GROTESK</div>
+        <div class="type-specimen" style="font-family: var(--display); font-weight: 700;">
+          240 GSM SUPER-COMBED OVERSIZED TEES
+        </div>
+        <div style="font-size: 11px; color: var(--muted);">Usage: Hero banners, drop headlines, billboard posters</div>
+      </div>
+
+      <div class="type-card">
+        <div style="font-size: 10px; color: var(--cyan);">[TELEMETRY] SPACE MONO</div>
+        <div class="type-specimen" style="font-family: var(--mono); font-size: 18px;">
+          AUTH_ID: #8902 // INR_₹1,499 // 100%_CASHBACK_ACTIVE
+        </div>
+        <div style="font-size: 11px; color: var(--muted);">Usage: Pricing, technical details, referral codes, order status</div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+/*
+ * The neutral theme names Figtree. SKYWARE ships no webfonts (performance and
+ * branding: Segoe UI system stack site-wide), so resolve Figtree to the local
+ * system face instead of fetching it from Google Fonts.
+ */
+@font-face {
+  font-family: "Figtree";
+  src: local("Segoe UI"), local("Segoe UI Variable"), local("Helvetica Neue"), local("Arial");
+  font-style: normal;
+  font-display: swap;
+}

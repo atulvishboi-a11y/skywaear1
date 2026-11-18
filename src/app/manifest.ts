@@ -1,0 +1,97 @@
+import type { MetadataRoute } from "next";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "SKYWEAR | Heavyweight Streetwear",
+    short_name: "SKYWEAR",
+    description: "240 GSM Super-Combed Heavyweight Oversized T-Shirts & Luxury Anime Streetwear. Designed & Printed in India.",
+    start_url: "/",
+    scope: "/",
+    id: "/",
+    display: "standalone",
+    display_override: ["window-controls-overlay", "standalone", "minimal-ui"],
+    background_color: "#0B0C10",
+    theme_color: "#0B0C10",
+    orientation: "portrait-primary",
+    lang: "en",
+    dir: "ltr",
+    categories: ["shopping", "fashion", "lifestyle"],
+    prefer_related_applications: false,
+    icons: [
+      {
+        src: "/favicon-16x16.png",
+        sizes: "16x16",
+        type: "image/png",
+      },
+      {
+        src: "/favicon-32x32.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        src: "/favicon-48x48.png",
+        sizes: "48x48",
+        type: "image/png",
+      },
+      {
+        src: "/android-chrome-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/android-chrome-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "maskable",
+      },
+      {
+        src: "/android-chrome-512x512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/android-chrome-512x512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
+      {
+        src: "/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+    shortcuts: [
+      {
+        name: "Shop Drops",
+        short_name: "Shop",
+        description: "Browse all limited streetwear drops",
+        url: "/shop",
+        icons: [{ src: "/android-chrome-192x192.png", sizes: "192x192" }],
+      },
+      {
+        name: "Shopping Bag",
+        short_name: "Bag",
+        description: "View items ready for checkout",
+        url: "/cart",
+        icons: [{ src: "/android-chrome-192x192.png", sizes: "192x192" }],
+      },
+      {
+        name: "Cashback Wallet",
+        short_name: "Wallet",
+        description: "100% Cashback balance and rewards",
+        url: "/wallet",
+        icons: [{ src: "/android-chrome-192x192.png", sizes: "192x192" }],
+      },
+      {
+        name: "Track Order",
+        short_name: "Track",
+        description: "Real-time delivery status",
+        url: "/track",
+        icons: [{ src: "/android-chrome-192x192.png", sizes: "192x192" }],
+      },
+    ],
+  };
+}

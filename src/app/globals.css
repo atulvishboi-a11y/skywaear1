@@ -1,0 +1,1201 @@
+@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], .dark, [class~="dark"]));
+
+/* Skywear logo — white wordmark on dark, inverted to black on light */
+[data-theme="light"] .skywear-logo-img,
+html.light .skywear-logo-img,
+.light .skywear-logo-img {
+  filter: invert(1);
+}
+
+/* Universal Logo Visibility for dark & light modes */
+.logo-dark {
+  display: inline-block;
+}
+.logo-white {
+  display: none;
+}
+
+[data-theme="dark"] .logo-dark,
+html.dark .logo-dark,
+.dark .logo-dark {
+  display: inline-block !important;
+}
+[data-theme="dark"] .logo-white,
+html.dark .logo-white,
+.dark .logo-white {
+  display: none !important;
+}
+
+[data-theme="light"] .logo-dark,
+html.light .logo-dark,
+.light .logo-dark {
+  display: none !important;
+}
+[data-theme="light"] .logo-white,
+html.light .logo-white,
+.light .logo-white {
+  display: inline-block !important;
+}
+
+/* Segoe UI system stack — native on Windows, platform fallbacks elsewhere */
+:root {
+  --font-ui: "Segoe UI", "Segoe UI Variable", system-ui, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Legacy aliases: existing rules/inline styles reference these names */
+  --font-space-grotesk: var(--font-ui);
+  --font-space-mono: var(--font-ui);
+  --font-work-sans: var(--font-ui);
+  --font-anonymous-pro: var(--font-ui);
+}
+
+@theme inline {
+  --font-sans: "Segoe UI", "Segoe UI Variable", system-ui, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Segoe UI", "Segoe UI Variable", system-ui, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+}
+
+@layer base {
+  :root, [data-theme="dark"], html.dark, .dark {
+    --radius: 0.5rem;
+    --background: #0B0C10;
+    --foreground: #F5F5F7;
+    --primary: #F5F5F7;
+    --primary-foreground: #0B0C10;
+    --secondary: #16181D;
+    --secondary-foreground: #F5F5F7;
+    --muted: #16181D;
+    --muted-foreground: #8E929B;
+    --accent: oklch(0.229 0 0);
+    --accent-foreground: #F5F5F7;
+    --destructive: #ef4444;
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: #282C34;
+    --input: #282C34;
+    --ring: #00FF66;
+
+    --bg-zenin: #0B0C10;
+    --bg-header: rgba(11, 12, 16, 0.96);
+    --card-zenin: #16181D;
+    --card-sub: #1f1f24;
+    --card-muted: #121317;
+    --text-zenin: #F5F5F7;
+    --text-muted: #8E929B;
+    --border-zenin: #282C34;
+    --border-subtle: rgba(40, 44, 52, 0.6);
+    --stitch-lime: #00FF66;
+    --stitch-cyan: #00F0FF;
+    --btn-zenin: #00FF66;
+    --btn-text: #0B0C10;
+    --carousel-bg: #0B0C10;
+    --card-shadow: none;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-emil: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  [data-theme="light"], html.light {
+    --background: #ffffff;
+    --foreground: #090a0f;
+    --primary: #090a0f;
+    --primary-foreground: #ffffff;
+    --secondary: #f1f5f9;
+    --secondary-foreground: #090a0f;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --accent: oklch(0.89 0 0);
+    --accent-foreground: #090a0f;
+    --destructive: #ef4444;
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: #e2e8f0;
+    --input: #cbd5e1;
+    --ring: #00cc52;
+
+    --bg-zenin: #f8fafc;
+    --bg-header: rgba(255, 255, 255, 0.95);
+    --card-zenin: #ffffff;
+    --card-sub: #f1f5f9;
+    --card-muted: #e2e8f0;
+    --text-zenin: #090a0f;
+    --text-muted: #64748b;
+    --border-zenin: rgba(0, 0, 0, 0.12);
+    --border-subtle: rgba(0, 0, 0, 0.06);
+    --stitch-lime: #00cc52;
+    --stitch-cyan: #00b4c2;
+    --btn-zenin: #00FF66;
+    --btn-text: #0B0C10;
+    --carousel-bg: #f8fafc;
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  }
+
+  /* ---------------------------------------------------------------- admin theme
+     Every admin surface reads these tokens, so one attribute flips the whole
+     console. Dark reproduces the original neon-on-black console; light maps each
+     role to a Shopify-like neutral with AA-contrast text. */
+  [data-admin-theme="dark"] {
+    color-scheme: dark;
+    --adm-bg: #0B0C10;
+    --adm-bg-deep: #0A0B0E;
+    --adm-surface: #16181D;
+    --adm-surface-2: #11131A;
+    --adm-surface-3: #1F1F24;
+    --adm-fill: #282C34;
+    --adm-fill-strong: #343A44;
+    --adm-border: #282C34;
+    --adm-border-soft: rgba(255, 255, 255, 0.10);
+    --adm-border-strong: #8E929B;
+    --adm-text: #F5F5F7;
+    --adm-text-muted: #8E929B;
+    --adm-text-dim: #A0A5B5;
+    --adm-on-accent: #0B0C10;
+    --adm-accent: #00FF66;
+    --adm-info: #00F0FF;
+    --adm-warning: #FFB800;
+    --adm-danger: #FF3366;
+    --adm-success: #00FF66;
+    --adm-violet: #A78BFA;
+    --adm-neutral: #8E929B;
+    --adm-tint-05: rgba(255, 255, 255, 0.05);
+    --adm-tint-10: rgba(255, 255, 255, 0.10);
+    --adm-tint-20: rgba(255, 255, 255, 0.20);
+    --adm-tint-30: rgba(255, 255, 255, 0.30);
+    --adm-inset: rgba(0, 0, 0, 0.30);
+    --adm-inset-strong: rgba(0, 0, 0, 0.40);
+    --adm-success-bg: rgba(0, 255, 102, 0.12);
+    --adm-warning-bg: rgba(255, 184, 0, 0.12);
+    --adm-danger-bg: rgba(255, 51, 102, 0.12);
+    --adm-info-bg: rgba(0, 240, 255, 0.12);
+    --adm-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    --adm-knob: #FFFFFF;
+  }
+
+  [data-admin-theme="light"] {
+    color-scheme: light;
+    --adm-bg: #F6F6F7;
+    --adm-bg-deep: #ECEEF0;
+    --adm-surface: #FFFFFF;
+    --adm-surface-2: #F1F2F3;
+    --adm-surface-3: #E9EBEE;
+    --adm-fill: #E9EBEE;
+    --adm-fill-strong: #DDE1E5;
+    --adm-border: #E1E3E5;
+    --adm-border-soft: #E7E9EB;
+    --adm-border-strong: #C9CDD2;
+    --adm-text: #202223;
+    --adm-text-muted: #63676B;
+    --adm-text-dim: #63676B;
+    --adm-on-accent: #FFFFFF;
+    --adm-accent: #04634A;
+    --adm-info: #1B528F;
+    --adm-warning: #7A5800;
+    --adm-danger: #B42318;
+    --adm-success: #04634A;
+    --adm-violet: #5B21B6;
+    --adm-neutral: #5C5F62;
+    --adm-tint-05: rgba(26, 28, 32, 0.04);
+    --adm-tint-10: rgba(26, 28, 32, 0.06);
+    --adm-tint-20: rgba(26, 28, 32, 0.09);
+    --adm-tint-30: rgba(26, 28, 32, 0.12);
+    --adm-inset: rgba(26, 28, 32, 0.05);
+    --adm-inset-strong: rgba(26, 28, 32, 0.07);
+    --adm-success-bg: #E4F5EF;
+    --adm-warning-bg: #FFF4D6;
+    --adm-danger-bg: #FDE8E4;
+    --adm-info-bg: #E8F0FB;
+    --adm-shadow: 0 1px 2px rgba(26, 28, 32, 0.07), 0 6px 18px rgba(26, 28, 32, 0.06);
+    --adm-knob: #FFFFFF;
+  }
+
+  [data-admin-theme] {
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+
+  [data-admin-theme] ::selection {
+    background: color-mix(in oklab, var(--adm-accent) 30%, transparent);
+  }
+
+  [data-admin-theme] :where(a, button, [role="button"], summary):focus-visible {
+    outline: 2px solid var(--adm-accent);
+    outline-offset: 2px;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+    max-width: 100vw;
+    scroll-padding-bottom: 40vh;
+  }
+
+  body {
+    background-color: var(--bg-zenin);
+    color: var(--text-zenin);
+    font-family: var(--font-work-sans), sans-serif;
+    letter-spacing: 0.2px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    max-width: 100vw;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Emil Kowalski Touch & Tap Polish (mobile-native) */
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  label {
+    touch-action: manipulation;
+  }
+
+  button,
+  .zenin-btn,
+  .zenin-btn-secondary,
+  [role="button"] {
+    user-select: none;
+    -webkit-user-select: none;
+    transition: transform 160ms var(--ease-out, ease-out);
+  }
+
+  /* Tactile Physical Feedback on Press */
+  button:active:not(:disabled),
+  .zenin-btn:active:not(:disabled),
+  .zenin-btn-secondary:active:not(:disabled),
+  [role="button"]:active {
+    transform: scale(0.97);
+    transition: transform 60ms ease-out;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-space-grotesk), sans-serif;
+  }
+
+  code, pre, .font-mono, .stitch-mono {
+    font-family: var(--font-space-mono), monospace;
+  }
+}
+
+/* iOS Safari auto-zoom prevention: inputs must be >= 16px */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Safe area inset helpers */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Stitch "Obsidian Brutalism" Zero-Radius Card & Button Styles */
+.zenin-card {
+  background-color: var(--card-zenin);
+  border: 1px solid var(--border-zenin);
+  border-radius: 0px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zenin-card-hover:hover {
+    border-color: #F5F5F7;
+    transition: border-color var(--duration-quick, 150ms) var(--ease-smooth-out, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+}
+
+.zenin-btn {
+  background-color: #F5F5F7;
+  color: #0B0C10;
+  border-radius: 0px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background-color 150ms var(--ease-emil), color 150ms var(--ease-emil), transform 60ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zenin-btn:hover {
+    background-color: #00FF66;
+    color: #0B0C10;
+  }
+}
+
+.zenin-btn-secondary {
+  background-color: transparent;
+  color: var(--text-zenin);
+  border: 1px solid var(--border-zenin);
+  border-radius: 0px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background-color 150ms var(--ease-emil), border-color 150ms var(--ease-emil), color 150ms var(--ease-emil), transform 60ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zenin-btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: #00F0FF;
+    color: #00F0FF;
+  }
+}
+
+/* ============================================================
+   LIGHT MODE: liquidGL-INSPIRED PREMIUM GLASS THEME ENGINE
+   Design language from https://liquidgl.naughtyduk.com/
+   Warm #f0f0f0 background · #eaeaec cards · #e0e0e0 borders
+   #101010/#1c1c1c text · Glass panels with blur & saturate
+   Large rounded corners · Clean monochrome · Minimal accents
+   ============================================================ */
+html.light,
+html.light body,
+html.light div.min-h-screen,
+[data-theme="light"],
+[data-theme="light"] body {
+  background-color: #f0f0f0 !important;
+  color: #101010 !important;
+}
+
+/* 1. Main Backgrounds -> liquidGL warm gray */
+html.light [class*="bg-[#0A0B0E]" i],
+html.light [class*="bg-[#0B0C10]" i],
+html.light [class*="bg-[#07090E]" i],
+html.light [class*="bg-[#07080B]" i],
+html.light [class*="bg-[#08090C]" i],
+html.light [class*="bg-[#090A0D]" i],
+html.light [class*="bg-[#0D1019]" i],
+html.light [class*="bg-[#0F1014]" i],
+html.light [class*="bg-[#171816]" i],
+html.light [class*="bg-[#0A0B0D]" i] {
+  background-color: #f0f0f0 !important;
+}
+
+/* 2. Cards, Containers & Sections -> liquidGL panel white */
+html.light [class*="bg-[#0E1017]" i],
+html.light [class*="bg-[#0E0F0E]" i],
+html.light [class*="bg-[#0E111A]" i],
+html.light [class*="bg-[#10131F]" i],
+html.light [class*="bg-[#10121A]" i],
+html.light [class*="bg-[#11131A]" i],
+html.light [class*="bg-[#111317]" i],
+html.light [class*="bg-[#121316]" i],
+html.light [class*="bg-[#121317]" i],
+html.light [class*="bg-[#14161D]" i],
+html.light [class*="bg-[#151722]" i],
+html.light [class*="bg-[#16181D]" i],
+html.light [class*="bg-[#161821]" i],
+html.light [class*="bg-[#17181F]" i],
+html.light [class*="bg-[#181A20]" i],
+html.light [class*="bg-[#1A1D27]" i],
+html.light [class*="bg-[#1E2028]" i],
+html.light [class*="bg-[#1F1F24]" i],
+html.light [class*="bg-[#232734]" i],
+html.light [class*="bg-[#262824]" i],
+html.light [class*="bg-[#282C34]" i] {
+  background-color: #eaeaec !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* 3. Product Visual Studio Frame & Subtle Wells -> liquidGL light well */
+html.light [class*="aspect-[4/5]"],
+html.light [class*="aspect-[4/5]" i] [class*="bg-[#08090C]" i],
+html.light [class*="aspect-[4/5]" i] [class*="bg-[#090A0D]" i] {
+  background-color: #e5e5e7 !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* 4. Secondary Pills & Nested Panels -> liquidGL off-white */
+html.light [class*="bg-[#1F201E]" i],
+html.light [class*="bg-[#181B24]" i],
+html.light [class*="bg-[#141620]" i],
+html.light [class*="bg-[#141622]" i],
+html.light [class*="bg-[#161822]" i],
+html.light [class*="bg-[#12141C]" i],
+html.light [class*="bg-[#12141D]" i] {
+  background-color: #e5e5e7 !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* 5. Hero Gradient -> liquidGL clean warm wash */
+html.light [class*="bg-gradient-to-b" i] {
+  background-image: linear-gradient(to bottom, #f0f0f0, #eaeaec, #e5e5e7) !important;
+}
+
+/* 6. All Dark & Translucent Borders -> liquidGL border #e0e0e0 */
+html.light [class*="border-white" i],
+html.light [class*="border-[#2E302B]" i],
+html.light [class*="border-[#262824]" i],
+html.light [class*="border-[#282C34]" i],
+html.light [class*="border-[#333742]" i],
+html.light [class*="border-[#262A33]" i],
+html.light [class*="border-[#262830]" i],
+html.light [class*="border-[#2E313D]" i],
+html.light [class*="border-[#2A2D38]" i],
+html.light [class*="border-[#282C38]" i],
+html.light [class*="border-[#1F222E]" i],
+html.light [class*="border-[#1E2230]" i],
+html.light [class*="border-[#2C3144]" i],
+html.light [class*="border-[#232736]" i] {
+  border-color: #e0e0e0 !important;
+}
+
+/* 7. Translucent White Backgrounds -> liquidGL glass tint */
+html.light [class*="bg-white/[" i],
+html.light [class*="bg-white/10" i],
+html.light [class*="bg-white/15" i],
+html.light [class*="bg-white/20" i],
+html.light [class*="hover:bg-white" i]:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  transition: background-color var(--duration-quick, 150ms) var(--ease-smooth-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+/* 8. Text Color Mapping for liquidGL legibility */
+html.light h1,
+html.light h2,
+html.light h3,
+html.light h4,
+html.light h5,
+html.light h6 {
+  color: #1c1c1c !important;
+}
+
+html.light .text-white,
+html.light [class*="text-white" i],
+html.light [class*="text-[#FFFEFA]" i],
+html.light [class*="text-[#F4F1EA]" i],
+html.light [class*="text-[#F5F5F7]" i] {
+  color: #101010 !important;
+}
+
+/* Gradient Headings in Light Mode -> liquidGL deep charcoal */
+html.light .bg-clip-text,
+html.light [class*="bg-clip-text" i] {
+  background-image: linear-gradient(180deg, #101010 0%, #1c1c1c 70%, #3a3a3a 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Maintain pure white text ONLY on actual buttons, badges, and CTA pills */
+html.light button[class*="bg-[#D9362B]"],
+html.light button[class*="bg-[#D9362B]"] *,
+html.light a[class*="bg-[#D9362B]"],
+html.light a[class*="bg-[#D9362B]"] *,
+html.light span[class*="bg-[#D9362B]"],
+html.light span[class*="bg-[#D9362B]"] *,
+html.light button[class*="bg-red-"],
+html.light button[class*="bg-red-"] *,
+html.light a[class*="bg-red-"],
+html.light a[class*="bg-red-"] *,
+html.light span[class*="bg-red-"],
+html.light span[class*="bg-red-"] *,
+html.light button.bg-black,
+html.light button.bg-black *,
+html.light button.bg-slate-900,
+html.light button.bg-slate-900 * {
+  color: #ffffff !important;
+}
+
+/* Skywear lime action buttons keep obsidian dark text */
+html.light [class*="bg-[#00FF66]" i],
+html.light [class*="bg-[#00FF66]" i] * {
+  color: #0b0c10 !important;
+}
+
+html.light [class*="text-[#8E929B]" i],
+html.light [class*="text-[#A5AAB8]" i],
+html.light [class*="text-[#77776F]" i],
+html.light [class*="text-[#717684]" i],
+html.light [class*="text-[#C8C5BC]" i],
+html.light [class*="text-[#D8D0C2]" i],
+html.light [class*="text-[#A2A097]" i],
+html.light [class*="text-neutral-300" i],
+html.light [class*="text-neutral-400" i],
+html.light [class*="text-[#D1D4DE]" i],
+html.light [class*="text-[#D1D5DB]" i],
+html.light [class*="text-[#C5C8D4]" i],
+html.light [class*="text-[#C4C7D4]" i],
+html.light [class*="text-[#A0A5B5]" i],
+html.light [class*="text-[#B9BDCC]" i],
+html.light [class*="text-[#5C5E57]" i] {
+  color: rgba(16, 16, 16, 0.55) !important;
+}
+
+/* 9. Header & Navbars -> liquidGL glass header */
+html.light header {
+  background-color: rgba(240, 240, 240, 0.92) !important;
+  border-bottom-color: #e0e0e0 !important;
+  color: #101010 !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+html.light header [class*="bg-[#08090C]" i] {
+  background-color: #e5e5e7 !important;
+  border-bottom-color: #e0e0e0 !important;
+  color: rgba(16, 16, 16, 0.55) !important;
+}
+
+html.light header [class*="bg-[#0E1017]" i] {
+  background-color: rgba(240, 240, 240, 0.92) !important;
+  border-bottom-color: #e0e0e0 !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+html.light nav[aria-label="Product categories"] {
+  background-color: rgba(240, 240, 240, 0.92) !important;
+  border-bottom-color: #e0e0e0 !important;
+  box-shadow: none !important;
+}
+
+html.light nav[aria-label="Product categories"] button.bg-white {
+  background-color: #101010 !important;
+  color: #f0f0f0 !important;
+}
+
+html.light nav[aria-label="Product categories"] [class*="bg-[#141620]" i] {
+  background-color: #e5e5e7 !important;
+  color: rgba(16, 16, 16, 0.55) !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* 10. Cash Rebate & Accents in Light Mode */
+html.light [class*="text-[#00FF66]" i],
+html.light .text-emerald-400 {
+  color: #059669 !important;
+}
+
+html.light .text-emerald-300 {
+  color: #047857 !important;
+}
+
+html.light [class*="bg-emerald-500/10" i],
+html.light [class*="bg-emerald-500/15" i] {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+/* 11. Product Card & Action Elements in liquidGL style */
+html.light .group.shadow-lg {
+  background-color: #eaeaec !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
+  transition: border-color var(--duration-quick, 150ms) var(--ease-smooth-out, cubic-bezier(0.22, 1, 0.36, 1)), box-shadow var(--duration-quick, 150ms) var(--ease-smooth-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+html.light .group.shadow-lg:hover {
+  border-color: #cdcdcf !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .relative.aspect-\[4\/5\] {
+  background-color: #e5e5e7 !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+}
+
+html.light button[title*="Flip front"],
+html.light button[title*="Flip front"] * {
+  background-color: #ffffff !important;
+  color: #101010 !important;
+  border-color: #e0e0e0 !important;
+  border-radius: 8px !important;
+}
+
+html.light .absolute.bottom-2.left-2.right-2 {
+  background-color: rgba(234, 234, 236, 0.95) !important;
+  border-color: #e0e0e0 !important;
+}
+
+html.light a[href="#rebate-info"],
+html.light a[href="#rebate-info"] * {
+  background-color: #e5e5e7 !important;
+  color: #101010 !important;
+  border-color: #e0e0e0 !important;
+}
+
+html.light button[class*="hover:bg-white/[0.12]"],
+html.light button[class*="hover:bg-white/[0.12]"] * {
+  background-color: #e5e5e7 !important;
+  color: #101010 !important;
+  border-color: #e0e0e0 !important;
+  transition: background-color var(--duration-quick, 150ms) var(--ease-smooth-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+html.light button[class*="hover:bg-white/[0.12]"]:hover {
+  background-color: #dedede !important;
+}
+
+/* 12. Size selector active state */
+html.light button.bg-white.text-black {
+  background-color: #101010 !important;
+  color: #f0f0f0 !important;
+}
+
+/* 13. Floating Mobile Bar */
+html.light .sm\:hidden.fixed.bottom-3 {
+  background-color: rgba(234, 234, 236, 0.96) !important;
+  border-color: #e0e0e0 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light .sm\:hidden.fixed.bottom-3 [class*="bg-white" i] {
+  background-color: #e5e5e7 !important;
+  color: #101010 !important;
+}
+
+/* 13. Mobile Bottom Nav - Translucent White Frosted Glass Mode */
+#dock-bar,
+#mobile-bottom-nav {
+  background-color: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04), inset 0 1px 2px rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+}
+
+#dock-bar .dock-tab,
+#mobile-bottom-nav a {
+  color: #71717a !important;
+}
+
+#dock-bar .dock-tab:hover,
+#mobile-bottom-nav a:hover {
+  color: #101010 !important;
+}
+
+#dock-bar .dock-tab[aria-selected="true"],
+#dock-bar .dock-tab[aria-selected="true"] svg,
+#dock-bar .dock-tab[aria-selected="true"] span,
+#mobile-bottom-nav a[aria-current="page"],
+#mobile-bottom-nav a[aria-current="page"] svg,
+#mobile-bottom-nav a[aria-current="page"] span {
+  color: #f13545 !important;
+}
+
+#lens {
+  border-radius: 999px !important;
+  z-index: 1 !important;
+}
+
+#dock-bar .dock-tab {
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Light mode alert banners */
+html.light .border-amber-400\/30,
+html.light [class*="border-amber-400/30" i] {
+  border-color: #fcd34d !important;
+  border-radius: 10px !important;
+}
+html.light .bg-amber-400\/10,
+html.light [class*="bg-amber-400/10" i] {
+  background-color: #fffbeb !important;
+  border-radius: 10px !important;
+}
+html.light .text-amber-300,
+html.light [class*="text-amber-300" i] {
+  color: #b45309 !important;
+  font-weight: 600 !important;
+}
+
+/* Ensure mobile content never collides with floating bottom nav */
+body.has-bottom-nav main {
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+@media (min-width: 768px) {
+  body.has-bottom-nav main {
+    padding-bottom: 1.5rem !important;
+  }
+}
+
+/* Member Storefront Hero in liquidGL Light Mode */
+html.light section[class*="from-[#11131A]"] {
+  background-image: none !important;
+  background-color: #eaeaec !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 24px !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light section[class*="from-[#11131A]"] h1 {
+  color: #101010 !important;
+}
+
+html.light section[class*="from-[#11131A]"] [class*="bg-[#08090C]"] {
+  background-color: #e5e5e7 !important;
+  border-color: #e0e0e0 !important;
+  border-radius: 12px !important;
+}
+
+/* Brand Wordmark in liquidGL Light Mode (Header only) */
+html.light header .skywear-logo-img,
+html.light header img.skywear-logo-img {
+  filter: invert(1) brightness(0.12) !important;
+}
+
+/* 14. Desktop Sidebar in Account View */
+html.light aside {
+  background-color: rgba(234, 234, 236, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-right: 1px solid #e0e0e0 !important;
+}
+
+html.light aside nav a {
+  border-radius: 10px !important;
+  border: none !important;
+  transition: all 150ms ease !important;
+}
+
+/* Inactive tabs in sidebar */
+html.light aside nav a[data-active="false"],
+html.light aside nav a:not([data-active="true"]) {
+  background-color: transparent !important;
+  color: rgba(16, 16, 16, 0.6) !important;
+  box-shadow: none !important;
+}
+
+html.light aside nav a[data-active="false"]:hover,
+html.light aside nav a:not([data-active="true"]):hover {
+  background-color: rgba(16, 16, 16, 0.04) !important;
+  color: #101010 !important;
+}
+
+html.light aside nav a[data-active="false"] svg,
+html.light aside nav a:not([data-active="true"]) svg {
+  color: rgba(16, 16, 16, 0.45) !important;
+}
+
+/* Active tab in sidebar */
+html.light aside nav a[data-active="true"] {
+  background-color: #ffffff !important;
+  color: #f13545 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light aside nav a[data-active="true"] svg {
+  color: #f13545 !important;
+}
+
+html.light aside a[href*="/shop"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e0e0e0 !important;
+  color: #101010 !important;
+  border-radius: 10px !important;
+}
+
+html.light aside button[class*="text-rose"] {
+  background-color: #fff1f2 !important;
+  border: 1px solid #fecdd3 !important;
+  color: #e11d48 !important;
+  border-radius: 10px !important;
+}
+
+/* 15. Form Elements in liquidGL Light Mode */
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  color: #101010 !important;
+  border-color: #e0e0e0 !important;
+  border-radius: 10px !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: rgba(16, 16, 16, 0.4) !important;
+}
+
+/* 16. Footer */
+html.light footer#footer-section,
+html.light footer {
+  background-color: #eaeaec !important;
+  border-top-color: #e0e0e0 !important;
+  color: #101010 !important;
+}
+
+html.light footer .text-white {
+  color: #101010 !important;
+}
+
+html.light footer .text-neutral-400 {
+  color: rgba(16, 16, 16, 0.55) !important;
+}
+
+/* Ensure Amber badges and buttons always stay bold and readable */
+html.light .bg-amber-400,
+html.light .bg-amber-400 * {
+  color: #000000 !important;
+}
+
+html.light .text-amber-400 {
+  color: #d97706 !important;
+}
+
+/* 17. liquidGL Container & Card Architecture */
+html.light [class*="bg-[#11131A]" i] {
+  background-color: #eaeaec !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 16px !important;
+}
+
+html.light [class*="bg-[#0A0B0E]" i] {
+  background-color: #f0f0f0 !important;
+  border-color: #e0e0e0 !important;
+  border-radius: 12px !important;
+}
+
+html.light aside [class*="bg-[#0A0B0E]" i] {
+  background-color: #ffffff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Tables & Lists in liquidGL style */
+html.light table {
+  border-collapse: collapse !important;
+}
+
+html.light thead {
+  border-bottom: 1px solid #e0e0e0 !important;
+  color: rgba(16, 16, 16, 0.55) !important;
+}
+
+html.light thead th {
+  color: rgba(16, 16, 16, 0.55) !important;
+  font-family: "PP Supply Mono", "SF Mono", ui-monospace, Menlo, monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 0.04em !important;
+}
+
+html.light tbody tr {
+  border-bottom: 1px solid #e0e0e0 !important;
+  transition: background-color 150ms ease !important;
+}
+
+html.light tbody tr:hover {
+  background-color: rgba(16, 16, 16, 0.02) !important;
+}
+
+html.light [class*="divide-white" i] > * {
+  border-color: #e0e0e0 !important;
+}
+
+/* liquidGL Button styling */
+html.light button[class*="bg-[#D9362B]"],
+html.light a[class*="bg-[#D9362B]"] {
+  background-color: #f13545 !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  transition: opacity 150ms ease, transform 150ms ease !important;
+}
+
+html.light button[class*="bg-[#D9362B]"]:hover,
+html.light a[class*="bg-[#D9362B]"]:hover {
+  opacity: 0.92 !important;
+}
+
+html.light button[class*="bg-[#D9362B]"]:active,
+html.light a[class*="bg-[#D9362B]"]:active {
+  transform: scale(0.98) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #e1e1e1;
+}
+::-webkit-scrollbar-thumb {
+  background: #b5b5b5;
+  border-radius: 4px;
+  transition: background var(--duration-quick, 150ms) var(--ease-smooth-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #121212;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Zenin marquee announcement ticker */
+.zenin-marquee {
+  display: flex;
+  width: max-content;
+  animation: zenin-marquee 32s linear infinite;
+}
+.zenin-marquee:hover {
+  animation-play-state: paused;
+}
+@keyframes zenin-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zenin-marquee {
+    animation: none;
+  }
+}
+
+/* Scroll-reveal sections */
+.zenin-reveal {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+.zenin-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+/* Phones and reduced-motion must never depend on the observer to show content. */
+@media (max-width: 640px), (prefers-reduced-motion: reduce) {
+  .zenin-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Modal / sheet motion with Emil Kowalski ease-out curve */
+@keyframes zenin-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zenin-sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes zenin-slide-left {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.28);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes popover-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.zenin-fade {
+  animation: zenin-fade-in 0.18s ease-out forwards;
+}
+
+.zenin-sheet {
+  transform-origin: center;
+  animation: zenin-sheet-up 0.22s var(--ease-out, ease-out) forwards;
+}
+
+.zenin-drawer {
+  animation: zenin-slide-left 0.22s var(--ease-drawer) forwards;
+}
+
+.zenin-popover {
+  transform-origin: top right;
+  animation: popover-enter 0.16s var(--ease-out, ease-out) forwards;
+}
+
+.animate-heart-pop {
+  animation: heart-pop 0.28s var(--ease-spring);
+}
+
+/* Sonner Brutalist Obsidian Toast Styling */
+[data-sonner-toaster] {
+  font-family: var(--font-space-mono), monospace !important;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  right: 1.5rem !important;
+  z-index: 9999 !important;
+}
+
+[data-sonner-toast] {
+  border-radius: 0px !important;
+  background-color: #0E0F0E !important;
+  border: 1px solid #282C34 !important;
+  color: #F5F5F7 !important;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7) !important;
+  font-family: var(--font-space-mono), monospace !important;
+  font-size: 12px !important;
+  letter-spacing: 0.02em !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  border-color: #00FF66 !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  border-color: #f43f5e !important;
+}
+
+[data-sonner-toast] [data-button] {
+  border-radius: 0px !important;
+  font-family: var(--font-space-grotesk), sans-serif !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  background-color: #00FF66 !important;
+  color: #0B0C10 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zenin-fade,
+  .zenin-sheet,
+  .zenin-drawer,
+  .animate-heart-pop,
+  .animate-marquee,
+  .animate-marquee-reverse {
+    animation: none;
+  }
+}
+
+/* Magic UI Hardware-Accelerated Marquee */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap, 2rem)));
+  }
+}
+
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(calc(-100% - var(--gap, 2rem)));
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--duration, 30s) linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse var(--duration, 30s) linear infinite;
+  will-change: transform;
+}
+
+
+
+/* Reserve space for the logged-in-only mobile bottom navigation */
+body.has-bottom-nav {
+  padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  body.has-bottom-nav {
+    padding-bottom: 0;
+  }
+}
+
+/* Bag lives in the mobile bottom nav for signed-in users — avoid a second icon in the header */
+@media (max-width: 767px) {
+  body.has-bottom-nav #cart-icon-bubble {
+    display: none;
+  }
+}
+
+/* Global Site Container: Single consistent horizontal boundary system */
+.site-container {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 1rem; /* 16px mobile */
+}
+
+@media (min-width: 640px) {
+  .site-container {
+    padding-inline: 1.5rem; /* 24px sm/md */
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-container {
+    padding-inline: 2rem; /* 32px lg/xl */
+  }
+}
+
+/* Native App Navigation: remove tap delay and mobile browser highlight boxes */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  touch-action: manipulation;
+  scroll-behavior: auto;
+}

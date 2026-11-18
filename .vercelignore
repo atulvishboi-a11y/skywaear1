@@ -1,0 +1,17 @@
+.agents/
+.claude/
+.codex/
+.cursor/
+.devin/
+.qoder/
+scratch/
+skills-lock.json
+.data/
+database_backups/
+node_modules/
+.next/
+*.log
+.env*
+.env.local
+.env.production
+

@@ -1,0 +1,401 @@
+// ZENIN STREETWEAR — production database contract.
+// The local demo runtime persists the same shapes to .data/zenin-state.json (src/lib/server/store.ts),
+// so every field below mirrors src/lib/domain.ts, src/data/rewardsEngine.ts and src/data/products.ts.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("STUDIO_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  APPROVED
+  PRINTING_POD
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum OrderKind {
+  SALE
+  GIFT
+  REPLACEMENT
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  NETBANKING
+  COD
+  COMPLIMENTARY
+  MANUAL_UPI
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PENDING_VERIFICATION
+  REFUNDED
+  REJECTED
+}
+
+enum Courier {
+  BlueDart
+  Delhivery
+  DTDC
+  EcomExpress
+}
+
+enum TransactionType {
+  CASHBACK
+  REFERRAL_COMMISSION
+  REDEMPTION
+  REFUND
+  ADMIN_ADJUSTMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  REVERSED
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+}
+
+enum TrancheStatus {
+  LOCKED
+  UNLOCKED
+  TRANSFERRED
+  VOID
+}
+
+enum CashbackTrancheStatus {
+  LOCKED
+  RELEASED
+  VOID
+}
+
+enum WithdrawalStatus {
+  VESTING_IN_PROGRESS
+  COMPLETED
+  REJECTED
+  PROCESSING
+  SUBMITTED_TO_BANK
+  PAID
+  FAILED
+  REVERSED
+}
+
+enum PayoutMethod {
+  UPI
+  BANK
+}
+
+model User {
+  id                   String              @id @default(cuid())
+  name                 String
+  email                String              @unique
+  phone                String?
+  role                 Role                @default(CUSTOMER)
+  referralCode         String              @unique
+  referredByCode       String?
+  tier                 String              @default("Silver")
+  availableCoins      Int                 @default(0)
+  pendingCoins        Int                 @default(0)
+  lifetimeEarnedCoins Int                 @default(0)
+  addresses            Json                @default("[]")
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  orders               Order[]
+  transactions         WalletTransaction[]
+  withdrawals          WithdrawalRequest[]
+  referralsMade        Referral[]          @relation("ReferrerRelation")
+  referralsReceived    Referral[]          @relation("RefereeRelation")
+  auditLogs            AuditLog[]
+}
+
+model Product {
+  id           String      @id @default(cuid())
+  slug         String      @unique
+  title        String
+  subtitle     String?
+  description  String
+  category     String
+  price        Float
+  mrp          Float
+  gsm          Int         @default(240)
+  fabric       String      @default("100% Super-Combed Bio-Washed Cotton")
+  badge        String?
+  graphicTitle String?
+  graphicType  String      @default("cyber_tokyo")
+  accentColor  String      @default("#fbbf24")
+  colors       Json        @default("[]")
+  sizes        String[]
+  images       String[]
+  stock        Int         @default(60)
+  isArchived   Boolean     @default(false)
+  cashbackPoints Int?
+  codAvailable Boolean @default(true)
+  rating       Float       @default(4.9)
+  reviewCount  Int         @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  orderItems   OrderItem[]
+
+  @@index([category, isArchived])
+}
+
+model CustomDesign {
+  id           String      @id @default(cuid())
+  shirtColor   String
+  shirtHex     String
+  side         String      @default("front")
+  customText   String?
+  fontFamily   String?
+  textColor    String?
+  textSize     Int         @default(32)
+  textOffsetX  Float       @default(0)
+  textOffsetY  Float       @default(0)
+  artworkType  String?
+  artworkUrl   String?
+  price        Float       @default(899)
+  createdAt    DateTime    @default(now())
+  orderItems   OrderItem[]
+}
+
+model Order {
+  id                  String        @id @default(cuid())
+  orderNumber         String        @unique
+  kind                OrderKind     @default(SALE)
+  userId              String?
+  user                User?         @relation(fields: [userId], references: [id])
+  customerName        String
+  customerEmail       String
+  customerPhone       String
+  address             String
+  city                String
+  state               String
+  pincode             String
+  subtotal            Float
+  couponCode          String?
+  discount            Float         @default(0)
+  legacyCoinsRedeemed      Int           @default(0)
+  legacyInrRedeemed Float         @default(0)
+  cashbackCoins        Int           @default(0)
+  referralCoinsEarned Float         @default(0)
+  referrerCode        String?
+  deliveryFee         Float         @default(0)
+  total               Float
+  paymentMethod       PaymentMethod @default(UPI)
+  paymentStatus       PaymentStatus @default(PENDING)
+  status              OrderStatus   @default(PENDING)
+  courier             Courier?
+  trackingNumber      String?
+  trackingUrl         String?
+  podProvider         String        @default("Qikink")
+  podOrderId          String?
+  podStatus           String?
+  giftReason          String?
+  gateway             String?
+  gatewayOrderId      String?
+  gatewayPaymentId    String?
+  manualUpiSnapshot   Json?
+  utr                 String?       @unique
+  utrSubmittedAt      DateTime?
+  paymentScreenshot   String?
+  verifiedBy          String?
+  verifiedAt          DateTime?
+  rejectedAt          DateTime?
+  rejectionReason     String?
+  placedAt            DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  items               OrderItem[]
+  timeline            TimelineEvent[]
+  transactions        WalletTransaction[]
+  cashback            CashbackTranche[]
+
+  @@index([status, placedAt])
+  @@index([customerEmail])
+  @@index([utr])
+}
+
+model OrderItem {
+  id             String        @id @default(cuid())
+  orderId        String
+  order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String?
+  product        Product?      @relation(fields: [productId], references: [id])
+  customDesignId String?
+  customDesign   CustomDesign? @relation(fields: [customDesignId], references: [id])
+  title          String
+  color          String
+  size           String
+  quantity       Int           @default(1)
+  price          Float
+  previewImage   String?
+  graphicType    String?
+  customText     String?
+}
+
+model TimelineEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  label     String
+  note      String
+  at        DateTime @default(now())
+  position  Int      @default(0)
+
+  @@index([orderId, position])
+}
+
+model WalletTransaction {
+  id          String            @id @default(cuid())
+  userId      String?
+  user        User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId     String?
+  order       Order?            @relation(fields: [orderId], references: [id])
+  orderNumber String?
+  type        TransactionType
+  points      Int
+  legacyInrValue  Float
+  description String
+  status      TransactionStatus @default(COMPLETED)
+  createdAt   DateTime          @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model Referral {
+  id               String           @id @default(cuid())
+  referrerId       String
+  referrer         User             @relation("ReferrerRelation", fields: [referrerId], references: [id], onDelete: Cascade)
+  refereeId        String?
+  referee          User?            @relation("RefereeRelation", fields: [refereeId], references: [id])
+  friendName       String
+  friendEmail      String
+  orderNumber      String?
+  orderAmount      Float?
+  commissionRate   Float            @default(0.10)
+  commissionAmount Float            @default(0)
+  status           CommissionStatus @default(PENDING)
+  createdAt        DateTime         @default(now())
+  paidAt           DateTime?
+}
+
+model WithdrawalRequest {
+  id                String           @id @default(cuid())
+  userId            String
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerName      String
+  phone             String?
+  upiId             String
+  payoutMethod      PayoutMethod     @default(UPI)
+  bankAccount       String?
+  bankIfsc          String?
+  totalCoins       Int
+  legacyInrTotal       Float
+  purchaseOrder     String?
+  anchorDate        DateTime
+  requestedAt       DateTime         @default(now())
+  overallStatus     WithdrawalStatus @default(VESTING_IN_PROGRESS)
+  rejectionReason   String?
+  tranches          WithdrawalTranche[]
+
+  @@index([userId, overallStatus])
+}
+
+// 4-week vesting: 25% of the amount unlocks on day 7, 14, 21 and 28 after the anchor purchase.
+model WithdrawalTranche {
+  id            String        @id @default(cuid())
+  withdrawalId  String
+  withdrawal    WithdrawalRequest @relation(fields: [withdrawalId], references: [id], onDelete: Cascade)
+  week          Int
+  percent       Int           @default(25)
+  points        Int
+  legacyInrAmount   Float
+  dueAt         DateTime
+  status        TrancheStatus @default(LOCKED)
+  transferredAt DateTime?
+  upiRef        String?
+
+  @@unique([withdrawalId, week])
+}
+
+// Cashback vesting: 25% of the order's coins release at payment (week 1, day 0),
+// then on day 7, 14 and 21 after the payment was collected.
+model CashbackTranche {
+  id          String                @id @default(cuid())
+  orderId     String
+  order       Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  week        Int
+  percent     Int                   @default(25)
+  points      Int
+  legacyInrAmount Float
+  dueAt       DateTime
+  status      CashbackTrancheStatus @default(LOCKED)
+  releasedAt  DateTime?
+
+  @@unique([orderId, week])
+}
+
+model RewardRule {
+  id                      String  @id @default(cuid())
+  name                    String  @default("Standard Customer Cashback")
+  cashbackPercent         Float   @default(10.0)
+  pointValueInRupees      Float   @default(0.50)
+  maxRedemptionPercent    Float   @default(30.0)
+  minOrderForRedemption   Float   @default(499.0)
+  affiliateCommissionPct  Float   @default(10.0)
+  updatedAt               DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  actor     String
+  action    String
+  resource  String?
+  details   String
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model ManualUpiConfig {
+  id           String   @id @default("default")
+  enabled      Boolean  @default(true)
+  upiId        String   @default("zenin@upi")
+  merchantName String   @default("ZENIN STREETWEAR")
+  instructions String   @default("Scan the QR code using Google Pay, PhonePe, Paytm, or BHIM. Enter your Order # in the payment note/remarks, and submit your 12-digit UTR reference below.")
+  updatedAt    DateTime @updatedAt
+}
+
+model AppState {
+  key       String   @id
+  data      Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuthOtp {
+  identifier String   @id
+  code       String
+  expiresAt  BigInt
+  createdAt  DateTime @default(now())
+}
+
