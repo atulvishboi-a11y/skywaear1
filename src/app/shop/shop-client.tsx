@@ -99,6 +99,12 @@ export default function ShopPage() {
       router.prefetch("/checkout");
       router.prefetch("/cart");
     } catch {}
+
+    const handlePageShow = () => {
+      setIsNavigating(false);
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
   }, [router]);
 
   const handleQuickAdd = (product: Product, buyNow = false, sizeOverride?: string) => {
@@ -137,6 +143,10 @@ export default function ShopPage() {
             window.location.assign("/checkout");
           }
         }, 350);
+        // Safety unlock: ensure button becomes interactive again if navigation was interrupted
+        setTimeout(() => {
+          setIsNavigating(false);
+        }, 3500);
       } catch (err) {
         setIsNavigating(false);
         console.error("Buy now navigation failed:", err);

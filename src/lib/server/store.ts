@@ -515,74 +515,92 @@ function applyTimeRules(state: ZeninState): void {
 }
 
 let lastPgSyncTime = 0;
+let inFlightLoadPromise: Promise<ZeninState> | null = null;
 // In production on serverless, 60s in-memory TTL keeps tab switching and page browsing instant
 // without overloading Postgres connection pools. Mutations bypass this cache immediately with forceRefresh=true.
 const PG_CACHE_TTL_MS = process.env.NODE_ENV === "development" ? 60 * 60 * 1000 : 60 * 1000;
 
-export async function ensureStateLoaded(forceRefresh = false): Promise<ZeninState> {  const now = Date.now();
+export async function ensureStateLoaded(forceRefresh = false): Promise<ZeninState> {
+  const now = Date.now();
   // Return instant in-memory cached state if within TTL or already in memory in local development
   if (!forceRefresh && globalStore.__zeninState && (now - lastPgSyncTime < PG_CACHE_TTL_MS || process.env.NODE_ENV === "development")) {
     return readState();
   }
 
-  // 1. Check shared Redis cache across all Vercel distributed instances
-  if (!forceRefresh && !isLocalOnly()) {
-    try {
-      const redisState = await redisGet<ZeninState>("zenin_state:snapshot");
-      if (redisState && redisState.version === STATE_VERSION) {
-        const currentRev = globalStore.__zeninState?.revision ?? -1;
-        const redisRev = redisState.revision ?? 0;
-        if (!globalStore.__zeninState || redisRev >= currentRev) {
-          globalStore.__zeninState = redisState;
-          lastPgSyncTime = Date.now();
-          return readState();
-        }
-      }
-    } catch {}
+  // Stampede protection: reuse in-flight load promise across concurrent requests
+  if (!forceRefresh && inFlightLoadPromise) {
+    return inFlightLoadPromise;
   }
 
-  if (!isLocalOnly()) keepWhatsAppAlive();
-  try {
-    const pgState = await loadStateFromPostgres();
-    lastPgSyncTime = Date.now();
-    if (pgState && pgState.version === STATE_VERSION) {
-      const currentRev = globalStore.__zeninState?.revision ?? -1;
-      const pgRev = pgState.revision ?? 0;
-      if (!globalStore.__zeninState || pgRev >= currentRev || forceRefresh) {
-        migrateCoinSchema(pgState);
-        pgState.notifications = pgState.notifications ?? [];
-        pgState.pushSubscriptions = pgState.pushSubscriptions ?? [];
-        pgState.support = { ...DEFAULT_SUPPORT, ...(pgState.support ?? {}) };
-        pgState.manualUpi = { ...DEFAULT_MANUAL_UPI, ...(pgState.manualUpi ?? {}) };
-        pgState.gateways = { ...DEFAULT_GATEWAYS, ...(pgState.gateways ?? {}) };
-        pgState.qikink = { ...DEFAULT_QIKINK_CONFIG, ...(pgState.qikink ?? {}) };
-        pgState.teams = pgState.teams ?? [];
-        pgState.supportChats = pgState.supportChats ?? [];
-        if (pgState.gateways.codEnabled === undefined) pgState.gateways.codEnabled = true;
-        if (!pgState.gateways.razorpayMode) pgState.gateways.razorpayMode = "live";
-        pgState.rewardRules = normalizeRewardRules(pgState.rewardRules);
-        backfillSeedData(pgState);
-        globalStore.__zeninState = pgState;
-        try {
-          fs.writeFileSync(STATE_FILE, JSON.stringify(pgState, null, 2), "utf8");
-        } catch {}
-        await redisSet("zenin_state:snapshot", pgState, 300);
-      }
-    } else if (!globalStore.__zeninState) {
-      // First time database bootstrap only when both Postgres AND disk are completely blank
-      const diskState = fs.existsSync(STATE_FILE) ? load() : null;
-      if (diskState && (diskState.customers?.length || isLocalOnly())) {
-        globalStore.__zeninState = diskState;
-      } else {
-        const seeded = seedState();
-        globalStore.__zeninState = seeded;
-        // Do NOT call persist(seeded) here — prevent accidental overwrites of remote database
-      }
+  const doLoad = async (): Promise<ZeninState> => {
+    // 1. Check shared Redis cache across all Vercel distributed instances
+    if (!forceRefresh && !isLocalOnly()) {
+      try {
+        const redisState = await redisGet<ZeninState>("zenin_state:snapshot");
+        if (redisState && redisState.version === STATE_VERSION) {
+          const currentRev = globalStore.__zeninState?.revision ?? -1;
+          const redisRev = redisState.revision ?? 0;
+          if (!globalStore.__zeninState || redisRev >= currentRev) {
+            globalStore.__zeninState = redisState;
+            lastPgSyncTime = Date.now();
+            return readState();
+          }
+        }
+      } catch {}
     }
-  } catch (err) {
-    console.warn("[store] Error synchronizing state with Postgres:", err);
+
+    if (!isLocalOnly()) keepWhatsAppAlive();
+    try {
+      const pgState = await loadStateFromPostgres();
+      lastPgSyncTime = Date.now();
+      if (pgState && pgState.version === STATE_VERSION) {
+        const currentRev = globalStore.__zeninState?.revision ?? -1;
+        const pgRev = pgState.revision ?? 0;
+        if (!globalStore.__zeninState || pgRev >= currentRev || forceRefresh) {
+          migrateCoinSchema(pgState);
+          pgState.notifications = pgState.notifications ?? [];
+          pgState.pushSubscriptions = pgState.pushSubscriptions ?? [];
+          pgState.support = { ...DEFAULT_SUPPORT, ...(pgState.support ?? {}) };
+          pgState.manualUpi = { ...DEFAULT_MANUAL_UPI, ...(pgState.manualUpi ?? {}) };
+          pgState.gateways = { ...DEFAULT_GATEWAYS, ...(pgState.gateways ?? {}) };
+          pgState.qikink = { ...DEFAULT_QIKINK_CONFIG, ...(pgState.qikink ?? {}) };
+          pgState.teams = pgState.teams ?? [];
+          pgState.supportChats = pgState.supportChats ?? [];
+          if (pgState.gateways.codEnabled === undefined) pgState.gateways.codEnabled = true;
+          if (!pgState.gateways.razorpayMode) pgState.gateways.razorpayMode = "live";
+          pgState.rewardRules = normalizeRewardRules(pgState.rewardRules);
+          backfillSeedData(pgState);
+          globalStore.__zeninState = pgState;
+          try {
+            fs.writeFileSync(STATE_FILE, JSON.stringify(pgState, null, 2), "utf8");
+          } catch {}
+          await redisSet("zenin_state:snapshot", pgState, 300);
+        }
+      } else if (!globalStore.__zeninState) {
+        // First time database bootstrap only when both Postgres AND disk are completely blank
+        const diskState = fs.existsSync(STATE_FILE) ? load() : null;
+        if (diskState && (diskState.customers?.length || isLocalOnly())) {
+          globalStore.__zeninState = diskState;
+        } else {
+          const seeded = seedState();
+          globalStore.__zeninState = seeded;
+          // Do NOT call persist(seeded) here — prevent accidental overwrites of remote database
+        }
+      }
+    } catch (err) {
+      console.warn("[store] Error synchronizing state with Postgres:", err);
+    }
+    return readState();
+  };
+
+  if (!forceRefresh) {
+    inFlightLoadPromise = doLoad().finally(() => {
+      inFlightLoadPromise = null;
+    });
+    return inFlightLoadPromise;
   }
-  return readState();
+
+  return doLoad();
 }
 
 export function readState(): ZeninState {
